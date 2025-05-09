@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  frontend:
+    image: node:lts
+    working_dir: /app
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost
+
+  backend:
+    entrypoint: []
+    command: ./mvnw spring-boot:run
+    volumes:
+      - ./backend:/app
+      - ~/.m2:/root/.m2
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/app
+      - SPRING_DATASOURCE_USERNAME=appuser
+      - SPRING_DATASOURCE_PASSWORD=apppassword
+
+  auth-server:
+    entrypoint: []
+    command: ./mvnw spring-boot:run
+    volumes:
+      - ./auth:/app
+      - ~/.m2:/root/.m2
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  kms:
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./kms:/code
+    environment:
+      - DB_URL=postgresql://db:5432/app
