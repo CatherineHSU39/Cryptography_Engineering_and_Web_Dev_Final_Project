@@ -8,14 +8,19 @@ A full-stack secure messaging platform with envelope encryption, role-based acce
 
 ```
 /
-├── backend/ # Spring Boot backend (REST API)
-├── auth/ # Spring Boot auth server with TOTP/JWT
-├── kms/ # FastAPI-based simulated KMS
-├── frontend/ # Vue 3 frontend using Vite (Multi-stage built)
-├── nginx/ # NGINX config and prod reverse proxy
-├── db/ # PostgreSQL init scripts
-├── docker-compose.yml # Production configuration
-└── docker-compose.dev.yml # Dev configuration
+├── backend/                  # Spring Boot backend (REST API)
+├── auth/                     # Spring Boot auth server with TOTP/JWT
+├── kms/                      # FastAPI-based simulated KMS
+├── frontend/                 # Vue 3 frontend using Vite (Multi-stage built)
+├── nginx/                    # NGINX config and prod reverse proxy
+├── db/                       # PostgreSQL init scripts
+├── docker-compose.yml        # Production configuration
+├── docker-compose.dev.yml    # Dev overrides (hot reload)
+├── scripts/
+│   ├── init-db.sh            # Role/table creation and optional seeding
+│   ├── init-schema.sql       # Table definitions
+│   └── seed-dev-data.sql     # Sample dev data (Alice, Bob, etc.)
+└── Makefile                  # Common build/management tasks
 ```
 
 ---
@@ -24,61 +29,80 @@ A full-stack secure messaging platform with envelope encryption, role-based acce
 
 ### 📦 1. Clone the repository
 
-bash
+```bash
 git clone https://github.com/CatherineHSU39/Cryptography_Engineering_and_Web_Dev_Final_Project.git
 cd Cryptography_Engineering_and_Web_Dev_Final_Project
+```
 
-### 🔑 2. Environment Setup
+### 🔑 2. Set up environment variables
 
-Create .env files as needed (e.g., for DB or JWT secrets).
-
----
-
-## 🧪 Local Development (with hot reload)
-
-> Uses docker-compose.dev.yml for dev commands and volume mounts.
-
-1. Start all services with dev settings:
-
-bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
-
-- Backend and auth run via ./mvnw spring-boot:run
-- Frontend runs npm run dev using Node container
-- KMS runs with FastAPI --reload
-- Database persists via db-data volume
+Copy `.env.example` to `.env`, then fill in required database and role credentials.
 
 ---
 
-## 🚀 Production Build (static frontend)
+## 🧪 Local Development
 
-1. Build static Vue app into /dist using multi-stage Dockerfile:
+Run with hot reload using:
 
-bash
-docker compose up --build
+```bash
+make dev
+make init-db MODE=development  # Creates tables, roles, and seeds dev data
+```
 
-- Static frontend files are built using frontend/Dockerfile and copied to nginx:/usr/share/nginx/html
+- Backend/Auth run with `spring-boot:run`
+- Frontend runs `npm run dev`
+- KMS runs with `uvicorn --reload`
+- PostgreSQL is seeded with example data (Alice, Bob)
 
-2. NGINX will serve:
-   - /dist as static frontend
-   - /api, /auth, /kms as backend services
+Stop the environment with:
+
+```bash
+make dev-down
+```
 
 ---
 
-## ⚙️ Additional Notes
+## 🚀 Production Deployment
 
-- frontend/ is not a running container in production — it's built into NGINX.
-- docker-compose.dev.yml is committed to version control and shared across the team
-- Use this file to define dev-only commands, mounts, and ports
+Build and launch the production stack:
+
+```bash
+make prod
+make init-db                  # Defaults to production mode (no seed data)
+```
+
+- Vue app is built via multi-stage Dockerfile
+- NGINX serves static frontend + reverse proxies `/api`, `/auth`, `/kms`
+
+Stop the environment with:
+
+```bash
+make prod-down
+```
 
 ---
 
 ## 🧹 Cleanup
 
-bash
-docker compose down -v
+To remove containers and volumes:
 
-Removes containers and volumes.
+```bash
+make clean
+```
+
+---
+
+## ⚙️ Makefile Quick Reference
+
+| Command                         | Description                     |
+| ------------------------------- | ------------------------------- |
+| `make dev`                      | Start development environment   |
+| `make prod`                     | Start production environment    |
+| `make init-db`                  | Init roles + tables (prod mode) |
+| `make init-db MODE=development` | Init roles + seed data (dev)    |
+| `make dev-down`                 | Stop dev environment            |
+| `make prod-down`                | Stop prod environment           |
+| `make clean`                    | Stop and remove all volumes     |
 
 ---
 
