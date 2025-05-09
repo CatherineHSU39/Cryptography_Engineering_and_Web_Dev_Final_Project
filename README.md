@@ -6,6 +6,7 @@ A full-stack secure messaging platform with envelope encryption, role-based acce
 
 ## 🧱 Project Structure
 
+```
 /
 ├── backend/ # Spring Boot backend (REST API)
 ├── auth/ # Spring Boot auth server with TOTP/JWT
@@ -15,6 +16,7 @@ A full-stack secure messaging platform with envelope encryption, role-based acce
 ├── db/ # PostgreSQL init scripts
 ├── docker-compose.yml # Production configuration
 └── docker-compose.dev.yml # Dev configuration
+```
 
 ---
 
