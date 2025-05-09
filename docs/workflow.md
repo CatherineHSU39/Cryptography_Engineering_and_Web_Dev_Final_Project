@@ -1,18 +1,20 @@
 # 流程
+
 ## 工作流程（信封加密模型）：
 
 **訊息發送：**
+
 1. 用戶端認證並請求 DEK
 2. KMS 生成隨機 ChaCha20 DEK
 3. 對每位收件人，使用其 CMK 或公鑰加密 DEK
 4. KMS 回傳：
-    - 明文 DEK（僅供立即使用）
-    - 每位收件人對應的加密 DEK 清單
+   - 明文 DEK（僅供立即使用）
+   - 每位收件人對應的加密 DEK 清單
 5. 用戶端使用 DEK 加密訊息內容並立即銷毀明文 DEK
 6. 用戶將以下資料傳送至伺服器：
-    - 加密訊息
-    - 加密 DEK 清單及對應收件人 ID
-    - Metadata（發送者 ID、群組 ID、時間戳）
+   - 加密訊息
+   - 加密 DEK 清單及對應收件人 ID
+   - Metadata（發送者 ID、群組 ID、時間戳）
 
 **訊息接收：**
 
@@ -32,21 +34,21 @@
 
 1. `POST /auth/login`
 
-    - 接收使用者名稱與密碼
-    - 透過本地用戶資料庫驗證憑證
+   - 接收使用者名稱與密碼
+   - 透過本地用戶資料庫驗證憑證
 
 2. `POST /auth/verify-otp`
 
-    - 接收 TOTP 驗證碼（例如來自 Google Authenticator）
-    - 成功後將此 session 標記為已完成 2FA 驗證
+   - 接收 TOTP 驗證碼（例如來自 Google Authenticator）
+   - 成功後將此 session 標記為已完成 2FA 驗證
 
 3. `POST /auth/token`
 
-    - 簽發帶有以下 claims 的 JWT 權杖：
-        - `sub`：使用者 ID
-        - `role`：user | admin | auditor
-        - `2fa_verified`：true
-        - `exp`：過期時間戳
+   - 簽發帶有以下 claims 的 JWT 權杖：
+     - `sub`：使用者 ID
+     - `role`：user | admin | auditor
+     - `2fa_verified`：true
+     - `exp`：過期時間戳
 
 前端會將此權杖安全儲存，並於所有 API 請求中以 `Authorization: Bearer <token>` 附加傳送。
 
