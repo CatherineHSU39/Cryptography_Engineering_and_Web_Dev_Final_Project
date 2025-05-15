@@ -11,6 +11,15 @@
 | role                  | Enum (`user`, `admin`, `auditor`) | Not null, check constraint | 存取權                                   |
 | created_at            | Timestamp                         | Default = now(), not null  | 註冊時間                                 |
 
+### Users Backend View
+
+| 欄位       | 型別                              | 限制條件                   | 說明      |
+| ---------- | --------------------------------- | -------------------------- | --------- |
+| id         | UUID                              | Primary key, not null      | 使用者 id |
+| username   | String                            | Unique, not null           | 登入名稱  |
+| role       | Enum (`user`, `admin`, `auditor`) | Not null, check constraint | 存取權    |
+| created_at | Timestamp                         | Default = now(), not null  | 註冊時間  |
+
 ## Messages
 
 | 欄位              | 型別         | 限制條件                          | 說明             |
