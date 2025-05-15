@@ -20,9 +20,9 @@ services:
     expose:
       - "8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/app
-      - SPRING_DATASOURCE_USERNAME=appuser
-      - SPRING_DATASOURCE_PASSWORD=apppassword
+      - SPRING_DATASOURCE_URL=${BACKEND_DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${BACKEND_USER}
+      - SPRING_DATASOURCE_PASSWORD=${BACKEND_PASSWORD}
 
   auth-server:
     container_name: auth-server
@@ -30,7 +30,9 @@ services:
     expose:
       - "8081"
     environment:
-      - AUTH_DB_URL=jdbc:postgresql://db:5432/app
+      - SPRING_DATASOURCE_URL=${AUTH_DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${AUTH_USER}
+      - SPRING_DATASOURCE_PASSWORD=${AUTH_PASSWORD}
 
   kms:
     container_name: kms
