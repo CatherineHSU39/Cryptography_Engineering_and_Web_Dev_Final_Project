@@ -4,6 +4,7 @@ from pqcrypto.kem.kyber512 import generate_keypair, encrypt, decrypt
 import base64
 import os
 import time
+import hashlib
 app = FastAPI()
 
 from fastapi import FastAPI
@@ -19,7 +20,8 @@ app = FastAPI()
 class KMSState:
     def __init__(self):
         self.cmk_public, self.cmk_private = generate_keypair()
-        self.audit_log = []
+        self.audit_log = []  # [{msg, time, hash}]
+        self.prev_hash = b'\x00' * 32  # 初始 hash
 
     def rotate_cmk(self):
         self.cmk_public, self.cmk_private = generate_keypair()
@@ -27,8 +29,17 @@ class KMSState:
 
     def log(self, message: str):
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        self.audit_log.append(f"[{timestamp}] {message}")
+        data = f"[{timestamp}] {message}"
+        combined = self.prev_hash + data.encode()
+        entry_hash = hashlib.sha256(combined).digest()
 
+        self.audit_log.append({
+            "timestamp": timestamp,
+            "message": message,
+            "hash": entry_hash.hex()
+        })
+
+        self.prev_hash = entry_hash  # 更新鏈條
 kms_state = KMSState()
 
 # 請求資料模型
@@ -87,3 +98,20 @@ def rotate_cmk():
 @app.get("/kms/audit-log")
 def get_audit_log():
     return {"log": kms_state.audit_log}
+
+@app.get("/kms/log-integrity")
+def verify_log_integrity():
+    prev = b'\x00' * 32
+
+    for entry in kms_state.audit_log:
+        data = f"[{entry['timestamp']}] {entry['message']}"
+        combined = prev + data.encode()
+        expected_hash = hashlib.sha256(combined).digest()
+        actual_hash = bytes.fromhex(entry['hash'])
+
+        if expected_hash != actual_hash:
+            return {"status": "FAILED", "message": "Log integrity check failed"}
+
+        prev = expected_hash
+
+    return {"status": "OK", "message": "All logs are intact"}
