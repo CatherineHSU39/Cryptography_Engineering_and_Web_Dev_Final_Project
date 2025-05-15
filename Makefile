@@ -8,10 +8,12 @@ ENV_FILE=.env
 # ---------------------------
 dev: ## Build and start dev environment (with hot reload)
 	@echo "🔧 Starting development environment..."
+	make init-spring
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
 
 dev-up: ## Start dev environment (with hot reload)
 	@echo "🔧 Starting development environment..."
+	make init-spring
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 
 dev-down: ## Stop dev environment
@@ -26,10 +28,12 @@ dev-init: ## Start dev environment and initialize DB roles
 # ---------------------------
 prod: ## Build and start production environment with static frontend
 	@echo "🚀 Starting production containers..."
+	make init-spring
 	docker compose up --build -d
 
 prod-up: ## Start production environment with static frontend
 	@echo "🚀 Starting production containers..."
+	make init-spring
 	docker compose up -d
 
 prod-down: ## Stop production environment
@@ -50,6 +54,16 @@ ps: ## Show running containers
 
 clean: ## Stop all containers and remove volumes
 	docker compose down -v
+
+
+# ---------------------------
+# 🔐 Spring Init
+# ---------------------------
+init-spring: ## Initialize Spring Boot applications
+	@echo "🔧 Initializing backend Spring Boot application..."
+	cd backend && ./mvnw clean install
+	@echo "🔧 Initializing auth Spring Boot application..."
+	cd auth && ./mvnw clean install
 
 # ---------------------------
 # 🔐 DB Init (Post-Start SQL Setup)

@@ -1,5 +1,7 @@
 # API 列表
 
+For access control see [access control.md](../database/access%20control.md)
+
 ## 🟣 Simulated KMS API (FastAPI)
 
 這裡所有請求都需要經過授權才能執行
