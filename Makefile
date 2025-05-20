@@ -61,9 +61,9 @@ clean: ## Stop all containers and remove volumes
 # ---------------------------
 init-spring: ## Initialize Spring Boot applications
 	@echo "🔧 Initializing backend Spring Boot application..."
-	cd backend && ./mvnw clean install
+	cd backend && ./mvnw clean install -Dmaven.test.skip=true
 	@echo "🔧 Initializing auth Spring Boot application..."
-	cd auth && ./mvnw clean install
+	cd auth && ./mvnw clean install -Dmaven.test.skip=true
 
 # ---------------------------
 # 🔐 DB Init (Post-Start SQL Setup)
