@@ -32,4 +32,13 @@ public class UserService {
                 .map(userMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
+    public UserResponseDTO updateUser(UUID id, UserResponseDTO user) {
+        return userRepository.findById(id)
+                .map(existingUser -> {
+                    existingUser.setUsername(user.getUsername());
+                    return userMapper.toDTO(userRepository.save(existingUser));
+                })
+                .orElse(null);
+    }
 }
