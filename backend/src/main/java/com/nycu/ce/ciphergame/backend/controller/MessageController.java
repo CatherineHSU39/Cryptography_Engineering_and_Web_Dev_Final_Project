@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nycu.ce.ciphergame.backend.dto.message.MessageRequestDTO;
-import com.nycu.ce.ciphergame.backend.dto.message.MessageResponseDTO;
+import com.nycu.ce.ciphergame.backend.dto.message.MessageRequest;
+import com.nycu.ce.ciphergame.backend.dto.message.MessageResponse;
 import com.nycu.ce.ciphergame.backend.service.MessageService;
 
 @RestController
@@ -22,14 +22,14 @@ public class MessageController {
     private MessageService messageService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<MessageResponseDTO> getMessageById(@PathVariable UUID id) {
-        MessageResponseDTO message = messageService.getMessageById(id);
+    public ResponseEntity<MessageResponse> getMessageById(@PathVariable UUID id) {
+        MessageResponse message = messageService.getMessageById(id);
         return ResponseEntity.ok(message);
     }
 
     @PostMapping()
-    public ResponseEntity<MessageResponseDTO> createMessage(@RequestBody MessageRequestDTO messageRequest) {
-        MessageResponseDTO message = messageService.createMessage(messageRequest);
+    public ResponseEntity<MessageResponse> createMessage(@RequestBody MessageRequest messageRequest) {
+        MessageResponse message = messageService.createMessage(messageRequest);
         if (message == null) {
             return ResponseEntity.badRequest().build();
         }
