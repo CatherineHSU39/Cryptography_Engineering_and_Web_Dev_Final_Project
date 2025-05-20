@@ -74,6 +74,24 @@ GRANT SELECT, INSERT ON audit_log TO ${KMS_USER};
 
 EOF
 
+
+echo "🛡️ Enabling RLS policies..."
+docker exec -i db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<EOF
+
+-- Enable RLS
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policy: Only show messages if user is a member of the group
+CREATE POLICY user_group_messages_policy ON messages
+USING (
+  EXISTS (
+    SELECT 1 FROM group_members
+    WHERE group_members.group_id = messages.group_id
+      AND group_members.user_id = current_setting('app.current_user_id')::uuid
+  )
+);
+EOF
+
 if [ "$ENVIRONMENT" = "development" ]; then
   echo "📥 Seeding development data from seed-dev-data.sql..."
   docker exec -i db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" < "$SCRIPT_DIR/seed-dev-data.sql"
