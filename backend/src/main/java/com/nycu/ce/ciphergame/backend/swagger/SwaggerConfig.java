@@ -1,11 +1,12 @@
-package com.nycu.ce.ciphergame.backend.config;
+package com.nycu.ce.ciphergame.backend.swagger;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 
 @Configuration
 @Profile("!prod") // This ensures Swagger is only active in non-prod environments

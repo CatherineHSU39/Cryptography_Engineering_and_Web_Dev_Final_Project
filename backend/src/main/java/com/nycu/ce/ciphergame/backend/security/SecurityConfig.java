@@ -1,4 +1,4 @@
-package com.nycu.ce.ciphergame.backend.config;
+package com.nycu.ce.ciphergame.backend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
