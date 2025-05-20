@@ -1,6 +1,6 @@
 package com.nycu.ce.ciphergame.backend.dto.group;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import lombok.Data;
@@ -8,5 +8,5 @@ import lombok.Data;
 @Data
 public class CUGroupRequest {
     private String name;
-    private List<UUID> memberIds;
+    private Set<UUID> memberIds;
 }

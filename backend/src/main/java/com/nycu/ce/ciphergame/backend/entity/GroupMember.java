@@ -43,4 +43,10 @@ public class GroupMember {
     public void onCreate() {
         this.joinedAt = LocalDateTime.now();
     }
+
+    public GroupMember(User user, Group group) {
+        this.user = user;
+        this.group = group;
+        this.id = new GroupMemberId(user.getId(), group.getId());
+    }
 }

@@ -1,9 +1,10 @@
 package com.nycu.ce.ciphergame.backend.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -28,11 +29,11 @@ public class Group {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
-    private List<GroupMember> members;
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<GroupMember> members;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
-    private List<Message> messages;
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Message> messages;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

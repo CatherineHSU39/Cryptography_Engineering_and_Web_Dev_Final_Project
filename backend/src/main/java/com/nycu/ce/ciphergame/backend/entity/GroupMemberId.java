@@ -5,7 +5,11 @@ import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
+@Data
+@AllArgsConstructor
 @Embeddable
 public class GroupMemberId implements Serializable {
     private UUID userId;
