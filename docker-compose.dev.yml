@@ -40,5 +40,3 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./kms:/code
-    environment:
-      - DB_URL=postgresql://db:5432/app
