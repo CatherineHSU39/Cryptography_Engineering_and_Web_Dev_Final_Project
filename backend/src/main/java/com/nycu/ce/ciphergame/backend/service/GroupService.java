@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.nycu.ce.ciphergame.backend.dto.group.CUGroupRequest;
 import com.nycu.ce.ciphergame.backend.dto.group.CUGroupResponse;
+import com.nycu.ce.ciphergame.backend.dto.group.GetAllGroupResponse;
 import com.nycu.ce.ciphergame.backend.dto.group.GetGroupResponse;
 import com.nycu.ce.ciphergame.backend.entity.Group;
 import com.nycu.ce.ciphergame.backend.mapper.GroupMapper;
@@ -23,15 +24,15 @@ public class GroupService {
     @Autowired
     private GroupMapper groupMapper;
 
-    public CUGroupResponse getGroupById(UUID id) {
+    public GetGroupResponse getGroupById(UUID id) {
         return groupRepository.findById(id)
-                .map(groupMapper::toDTOCreateUpdate)
+                .map(groupMapper::toDTOGet)
                 .orElse(null);
     }
 
-    public List<GetGroupResponse> getAllGroups() {
+    public List<GetAllGroupResponse> getAllGroups() {
         return groupRepository.findAll().stream()
-                .map(groupMapper::toDTOGet)
+                .map(groupMapper::toDTOGetAll)
                 .collect(Collectors.toList());
     }
     

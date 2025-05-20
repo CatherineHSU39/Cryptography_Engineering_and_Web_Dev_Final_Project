@@ -5,6 +5,7 @@ import org.mapstruct.MappingTarget;
 
 import com.nycu.ce.ciphergame.backend.dto.group.CUGroupRequest;
 import com.nycu.ce.ciphergame.backend.dto.group.CUGroupResponse;
+import com.nycu.ce.ciphergame.backend.dto.group.GetAllGroupResponse;
 import com.nycu.ce.ciphergame.backend.dto.group.GetGroupResponse;
 import com.nycu.ce.ciphergame.backend.entity.Group;
 
@@ -16,6 +17,8 @@ public interface GroupMapper {
     CUGroupResponse toDTOCreateUpdate(Group entity);
 
     GetGroupResponse toDTOGet(Group entity);
+
+    GetAllGroupResponse toDTOGetAll(Group entity);
 
     void updateEntityFromDTO(CUGroupRequest dto, @MappingTarget Group entity);
 }

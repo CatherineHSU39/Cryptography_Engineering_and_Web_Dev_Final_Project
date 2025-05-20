@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nycu.ce.ciphergame.backend.dto.group.CUGroupRequest;
 import com.nycu.ce.ciphergame.backend.dto.group.CUGroupResponse;
+import com.nycu.ce.ciphergame.backend.dto.group.GetAllGroupResponse;
 import com.nycu.ce.ciphergame.backend.dto.group.GetGroupResponse;
 import com.nycu.ce.ciphergame.backend.service.GroupService;
 
@@ -32,14 +33,14 @@ public class GroupController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<GetGroupResponse>> getAllGroups() {
-        List<GetGroupResponse> groups = groupService.getAllGroups();
+    public ResponseEntity<List<GetAllGroupResponse>> getAllGroups() {
+        List<GetAllGroupResponse> groups = groupService.getAllGroups();
         return ResponseEntity.ok(groups);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CUGroupResponse> getGroupById(@PathVariable UUID id) {
-        CUGroupResponse group = groupService.getGroupById(id);
+    public ResponseEntity<GetGroupResponse> getGroupById(@PathVariable UUID id) {
+        GetGroupResponse group = groupService.getGroupById(id);
         return ResponseEntity.ok(group);
     }
 
