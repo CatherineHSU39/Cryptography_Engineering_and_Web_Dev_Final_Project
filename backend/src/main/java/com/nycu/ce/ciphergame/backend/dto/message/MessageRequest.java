@@ -1,15 +1,12 @@
 package com.nycu.ce.ciphergame.backend.dto.message;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.Data;
 
 @Data
-public class MessageResponseDTO {
-    private UUID messageId;
-    private UUID groupId;
+public class MessageRequest {
     private UUID senderId;
+    private UUID groupId;
     private String encryptedMessage;
-    private LocalDateTime createdAt;
 }
