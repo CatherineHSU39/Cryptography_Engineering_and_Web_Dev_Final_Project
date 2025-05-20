@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nycu.ce.ciphergame.backend.dto.user.UserResponseDTO;
+import com.nycu.ce.ciphergame.backend.dto.user.UserResponse;
+import com.nycu.ce.ciphergame.backend.dto.user.UserRequest;
 import com.nycu.ce.ciphergame.backend.service.UserService;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -24,18 +25,18 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/{id}")
-    public UserResponseDTO getUserById(@PathVariable UUID id) {
+    public UserResponse getUserById(@PathVariable UUID id) {
         return userService.getUserById(id);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDTO> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<UserResponse> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
         UUID id = UUID.fromString(jwt.getSubject());
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PutMapping("/me")
-    public UserResponseDTO updateCurrentUser(@RequestBody UserResponseDTO user, @AuthenticationPrincipal Jwt jwt) {
+    public UserResponse updateCurrentUser(@RequestBody UserRequest user, @AuthenticationPrincipal Jwt jwt) {
         UUID id = UUID.fromString(jwt.getSubject());
         return userService.updateUser(id, user);
     }
