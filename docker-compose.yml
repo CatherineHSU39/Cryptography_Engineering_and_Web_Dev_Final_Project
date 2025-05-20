@@ -19,6 +19,8 @@ services:
     build: ./backend
     expose:
       - "8080"
+    depends_on:
+      - db
     environment:
       - SPRING_DATASOURCE_URL=${BACKEND_DB_URL}
       - SPRING_DATASOURCE_USERNAME=${BACKEND_USER}
@@ -29,6 +31,8 @@ services:
     build: ./auth
     expose:
       - "8081"
+    depends_on:
+      - db
     environment:
       - SPRING_DATASOURCE_URL=${AUTH_DB_URL}
       - SPRING_DATASOURCE_USERNAME=${AUTH_USER}
@@ -39,6 +43,8 @@ services:
     build: ./kms
     expose:
       - "8000"
+    depends_on:
+      - db
     environment:
       - DB_URL=postgresql://db:5432/app
 
