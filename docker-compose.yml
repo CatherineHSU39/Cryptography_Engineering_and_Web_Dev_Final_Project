@@ -26,6 +26,7 @@ services:
       - SPRING_DATASOURCE_URL=${BACKEND_DB_URL}
       - SPRING_DATASOURCE_USERNAME=${BACKEND_USER}
       - SPRING_DATASOURCE_PASSWORD=${BACKEND_PASSWORD}
+      - JWT_ISSUER_URI=${JWT_ISSUER_URI}
 
   auth-server:
     container_name: auth-server
@@ -39,6 +40,7 @@ services:
       - SPRING_DATASOURCE_URL=${AUTH_DB_URL}
       - SPRING_DATASOURCE_USERNAME=${AUTH_USER}
       - SPRING_DATASOURCE_PASSWORD=${AUTH_PASSWORD}
+      - JWT_ISSUER_URI=${JWT_ISSUER_URI}
 
   kms:
     container_name: kms
@@ -51,6 +53,7 @@ services:
       - DB_URL=${KMS_DB_URL}
       - DB_USERNAME=${KMS_USER}
       - DB_PASSWORD=${KMS_PASSWORD}
+      - JWT_ISSUER_URI=${JWT_ISSUER_URI}
 
   db:
     image: postgres:15
