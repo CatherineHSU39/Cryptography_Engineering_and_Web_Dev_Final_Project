@@ -27,7 +27,7 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String password;
 
-    @Column(name = "encrypted_totp_secret", nullable = false)
+    @Column(name = "encrypted_totp_secret", nullable = true)
     private String totpSecret;
 
     @Column(name = "role", nullable = false)
