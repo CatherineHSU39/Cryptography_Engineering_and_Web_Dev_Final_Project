@@ -1,6 +1,5 @@
 package com.nycu.ce.ciphergame.auth.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,21 +9,17 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 @Configuration
 public class WebSecurityConfig {
-    @Autowired
-    private AuthEntryPointJwt unauthorizedHandler;
-    @Bean
-    public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
-    }
+
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration
+            AuthenticationConfiguration authConfig
     ) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+        return authConfig.getAuthenticationManager();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -34,25 +29,18 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.disable())
-            .exceptionHandling(exceptionHandling ->
-                    exceptionHandling.authenticationEntryPoint(unauthorizedHandler)
-            )
-            .sessionManagement(sessionManagement ->
-                    sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+            .cors(cors -> cors.disable()) // Optional: Enable CORS if frontend interacts directly
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/auth/register",
                     "/auth/login",
+                    "/.well-known/jwks.json",
                     "/swagger-ui/**",
-                    "/swagger-ui.html",
                     "/v3/api-docs/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             );
-
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
