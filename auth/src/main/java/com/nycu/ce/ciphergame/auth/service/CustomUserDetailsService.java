@@ -1,7 +1,5 @@
 package com.nycu.ce.ciphergame.auth.service;
 
-import java.util.Collections;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,11 +18,6 @@ public class CustomUserDetailsService  implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User Not Found with username: " + username);
         }
-        return new CustomUserDetails(
-                user.getId(),
-                user.getUsername(),
-                user.getPassword(),
-                Collections.emptyList()
-        );
+        return new CustomUserDetails(user);
     }
 }
