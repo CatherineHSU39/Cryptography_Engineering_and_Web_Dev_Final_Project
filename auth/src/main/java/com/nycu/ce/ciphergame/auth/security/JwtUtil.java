@@ -3,9 +3,6 @@ package com.nycu.ce.ciphergame.auth.security;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
 import java.util.UUID;
 
 import javax.crypto.SecretKey;
@@ -15,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -41,32 +39,44 @@ public class JwtUtil {
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
         return Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setHeaderParam("typ", "JWT")
+                .setHeaderParam("alg", "HS256")
+
+
                 .setSubject(id.toString()) // still use user ID as sub
+                .setIssuer("auth-server")
+                .setAudience("kms")
+                .setAudience("backend")
                 .claim("username", username)
-                .claim("authorities", authorities.stream()
+                .claim("role", authorities.stream()
+                                        .findFirst()
                                         .map(GrantedAuthority::getAuthority)
-                                        .toList())
+                                        .map(role -> role.replaceFirst("^ROLE_", ""))
+                                        .orElse("UNKNOWN"))
+                .claim("2fa_verified", false)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    // Get user ID from JWT token
+    public UUID getId(String token) {
+        return UUID.fromString(Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody().getSubject());
+    }
+
     // Get username from JWT token
     public String getUsername(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().get("username", String.class);
     }
 
-    // Get authorities from JWT token
-    public Set<String> getAuthorities(String token) {
-        List<String> list = Jwts.parserBuilder()
-            .setSigningKey(key)
-            .build()
-            .parseClaimsJws(token)
-            .getBody()
-            .get("authorities", List.class);
-
-        return new HashSet<>(list);
+    // Get role from JWT token
+    public String getRole(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody().get("role", String.class);
     }
     // Validate JWT token
     public boolean validateJwtToken(String token) {
