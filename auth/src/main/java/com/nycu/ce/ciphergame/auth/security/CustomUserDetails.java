@@ -24,9 +24,8 @@ public class CustomUserDetails implements UserDetails {
         this.role = user.getRole();
     }
 
-    public UUID getId() {
-        return id;
-    }
+    public UUID getId() { return id; }
+    public String getRole() { return role; }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

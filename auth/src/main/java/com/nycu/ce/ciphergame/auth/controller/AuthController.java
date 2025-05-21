@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nycu.ce.ciphergame.auth.dto.UserRegisterRequest;
 import com.nycu.ce.ciphergame.auth.dto.UserSigninRequest;
 import com.nycu.ce.ciphergame.auth.dto.UserSigninResponse;
+import com.nycu.ce.ciphergame.auth.mapper.UserMapper;
 import com.nycu.ce.ciphergame.auth.security.CustomUserDetails;
 import com.nycu.ce.ciphergame.auth.security.JwtUtil;
 import com.nycu.ce.ciphergame.auth.service.UserService;
@@ -21,6 +22,9 @@ import com.nycu.ce.ciphergame.auth.service.UserService;
 public class AuthController {
     @Autowired
     UserService userService;
+    @Autowired
+    UserMapper userMapper;
+
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
@@ -34,12 +38,8 @@ public class AuthController {
                 )
         );
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String token = jwtUtils.generateToken(userDetails);
-        UserSigninResponse response = new UserSigninResponse();
-        response.setId(jwtUtils.getId(token));
-        response.setUsername(jwtUtils.getUsername(token));
-        response.setRole(jwtUtils.getRole(token));
-        response.setToken(token);
+        String token = jwtUtils.generateUserToken(userDetails);
+        UserSigninResponse response = userMapper.toDto(userDetails, token);
         return ResponseEntity.ok(response);
     }
     @PostMapping("/register")
