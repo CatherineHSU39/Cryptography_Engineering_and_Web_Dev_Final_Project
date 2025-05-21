@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR NOT NULL UNIQUE,
     password_hash VARCHAR NOT NULL,
     encrypted_totp_secret VARCHAR,
-    role VARCHAR NOT NULL CHECK (role IN ('ROLE_USER', 'ROLE_ADMIN', 'ROLE_AUDITOR')),
+    role VARCHAR NOT NULL CHECK (role IN ('USER', 'ADMIN', 'AUDITOR')),
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
