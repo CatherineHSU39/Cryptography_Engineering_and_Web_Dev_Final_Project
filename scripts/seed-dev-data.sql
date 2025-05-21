@@ -10,8 +10,8 @@
 -- Sample Users
 INSERT INTO users (id, username, password_hash, encrypted_totp_secret, role, created_at)
 VALUES
-  ('11111111-1111-4111-8111-111111111111', 'alice', 'bcrypt_hash_1', 'totp_enc_1', 'user', now()),
-  ('22222222-2222-4222-8222-222222222222', 'bob', 'bcrypt_hash_2', 'totp_enc_2', 'admin', now());
+  ('11111111-1111-4111-8111-111111111111', 'alice', 'bcrypt_hash_1', 'totp_enc_1', 'ROLE_USER', now()),
+  ('22222222-2222-4222-8222-222222222222', 'bob', 'bcrypt_hash_2', 'totp_enc_2', 'ROLE_ADMIN', now());
 
 -- Sample Groups
 INSERT INTO groups (id, name, created_at)
