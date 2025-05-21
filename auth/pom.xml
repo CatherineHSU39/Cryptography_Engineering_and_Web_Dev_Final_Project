@@ -23,6 +23,12 @@
     </properties>
 
     <dependencies>
+        <!-- Spring Boot devtools -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <!-- Web and Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
