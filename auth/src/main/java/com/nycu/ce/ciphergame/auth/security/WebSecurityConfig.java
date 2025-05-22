@@ -35,7 +35,7 @@ public class WebSecurityConfig {
                 .requestMatchers(
                         "/auth/register",
                         "/auth/login",
-                        "/.well-known/jwks.json",
+                        "/.well-known/**",
                         "/swagger-ui/**",
                         "/v3/api-docs/**"
                 ).permitAll()
