@@ -43,7 +43,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String generateUserToken(CustomUserDetails userDetails) {
+    public String generateUserToken(CustomUserDetails userDetails, Boolean is2faVerified) {
         UUID id = userDetails.getId();
         String username = userDetails.getUsername();
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
@@ -60,10 +60,10 @@ public class JwtUtil {
                         .map(GrantedAuthority::getAuthority)
                         .map(role -> role.replaceFirst("^ROLE_", ""))
                         .orElse("UNKNOWN"))
-                .claim("2fa_verified", false)
+                .claim("2fa_verified", is2faVerified)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(userKeyPair.getPrivate(), SignatureAlgorithm.PS256)
                 .compact();
-    } // Add similar getUsername/getRole as needed
+    }
 }
