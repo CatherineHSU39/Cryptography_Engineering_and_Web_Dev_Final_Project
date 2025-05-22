@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.zxing.BarcodeFormat;
@@ -27,8 +26,7 @@ import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
 @Service
 public class GAService {
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-    private static String ISSUER;
+    private static final String ISSUER = "CipherGame";
 
     // Generate a new TOTP key
     public String generateKey() {
