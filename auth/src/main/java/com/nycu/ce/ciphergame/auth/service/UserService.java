@@ -1,5 +1,7 @@
 package com.nycu.ce.ciphergame.auth.service;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,8 +38,8 @@ public class UserService {
         return response;
     }
 
-    public void saveTotpSecret(String username, String secret) {
-        User user = userRepository.findByUsername(username)
+    public void saveTotpSecret(UUID id, String secret) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setTotpSecret(secret);
         userRepository.save(user);
