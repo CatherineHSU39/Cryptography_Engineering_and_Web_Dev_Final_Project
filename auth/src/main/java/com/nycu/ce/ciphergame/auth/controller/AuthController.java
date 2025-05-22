@@ -17,35 +17,45 @@ import com.nycu.ce.ciphergame.auth.mapper.UserMapper;
 import com.nycu.ce.ciphergame.auth.security.CustomUserDetails;
 import com.nycu.ce.ciphergame.auth.security.JwtUtil;
 import com.nycu.ce.ciphergame.auth.service.UserService;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
     @Autowired
     UserService userService;
     @Autowired
     UserMapper userMapper;
-
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
     JwtUtil jwtUtils;
+
     @PostMapping("/login")
     public ResponseEntity<UserSigninResponse> authenticateUser(@RequestBody UserSigninRequest user) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         user.getUsername(),
-                        user.getPassword()
-                )
-        );
+                        user.getPassword()));
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String token = jwtUtils.generateUserToken(userDetails);
         UserSigninResponse response = userMapper.toDto(userDetails, token);
         return ResponseEntity.ok(response);
     }
+
     @PostMapping("/register")
     public ResponseEntity<Void> registerUser(@RequestBody UserRegisterRequest request) {
         userService.createUser(request);
         return ResponseEntity.ok().build();
     }
-}
 
+    @PostMapping("/auth/verify-2fa")
+    public ResponseEntity<?> verify2FA(@RequestBody TwoFaRequest request) {
+        User user = userService.findByUsername(request.getUsername());
+        if (twoFactorAuthService.verifyCode(user.getTwoFaSecret(), request.getCode())) {
+            // Issue JWT here
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid 2FA code");
+        }
+    }
+}
