@@ -34,4 +34,11 @@ public class UserService {
         response.setRole(user.getRole());
         return response;
     }
+
+    public void saveTotpSecret(String username, String secret) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setTotpSecret(secret);
+        userRepository.save(user);
+    }
 }
