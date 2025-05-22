@@ -1,5 +1,18 @@
 package com.nycu.ce.ciphergame.auth.service;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.imageio.ImageIO;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -10,19 +23,12 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
-import org.springframework.stereotype.Service;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class GAService {
-    private static final String ISSUER = "Your Company Name";
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private static String ISSUER;
 
     // Generate a new TOTP key
     public String generateKey() {
@@ -39,10 +45,10 @@ public class GAService {
     }
 
     // Generate a QR code URL for Google Authenticator
-    public String generateQRUrl(String secret, String username) {
+    public String generateQRUrl(String secret, UUID userId) {
         String url = GoogleAuthenticatorQRGenerator.getOtpAuthTotpURL(
                 ISSUER,
-                username,
+                userId.toString(),
                 new GoogleAuthenticatorKey.Builder(secret).build());
         try {
             return generateQRBase64(url);
