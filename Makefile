@@ -8,12 +8,10 @@ ENV_FILE=.env
 # ---------------------------
 dev: ## Build and start dev environment (with hot reload)
 	@echo "🔧 Starting development environment..."
-	make init-spring
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
 
 dev-up: ## Start dev environment (with hot reload)
 	@echo "🔧 Starting development environment..."
-	make init-spring
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 
 dev-down: ## Stop dev environment
@@ -33,7 +31,6 @@ prod: ## Build and start production environment with static frontend
 
 prod-up: ## Start production environment with static frontend
 	@echo "🚀 Starting production containers..."
-	make init-spring
 	docker compose up -d
 
 prod-down: ## Stop production environment
