@@ -38,6 +38,11 @@ public class UserService {
         return response;
     }
 
+    public User getUserById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
     public void saveTotpSecret(UUID id, String secret) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
