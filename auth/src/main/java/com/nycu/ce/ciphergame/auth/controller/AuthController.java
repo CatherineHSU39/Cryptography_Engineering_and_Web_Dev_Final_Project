@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nycu.ce.ciphergame.auth.dto.TwoFaRequest;
-import com.nycu.ce.ciphergame.auth.dto.UserRegisterRequest;
 import com.nycu.ce.ciphergame.auth.dto.UserSigninRequest;
 import com.nycu.ce.ciphergame.auth.dto.UserSigninResponse;
 import com.nycu.ce.ciphergame.auth.security.CustomUserDetails;
@@ -24,7 +23,7 @@ import com.nycu.ce.ciphergame.auth.service.CustomUserDetailsService;
 import com.nycu.ce.ciphergame.auth.service.UserService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/identity")
 public class AuthController {
 
     @Autowired
@@ -36,7 +35,7 @@ public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
 
-    @PostMapping("/login")
+    @PostMapping("/token")
     public ResponseEntity<?> authenticateUser(@RequestBody UserSigninRequest user) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -47,13 +46,7 @@ public class AuthController {
         return ResponseEntity.status(206).body(response);
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<Void> registerUser(@RequestBody UserRegisterRequest request) {
-        userService.createUser(request);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/verify-2fa")
+    @PostMapping("/2fa-verification")
     public ResponseEntity<?> verify2FA(@AuthenticationPrincipal Jwt jwt, @RequestBody TwoFaRequest req) {
         if ((boolean) jwt.getClaim("2fa_verified")) {
             return ResponseEntity.status(400).body("2FA already verified");
