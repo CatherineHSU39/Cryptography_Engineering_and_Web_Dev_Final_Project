@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 import com.nycu.ce.ciphergame.auth.entity.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID>{
+public interface UserRepository extends JpaRepository<User, UUID> {
+
     boolean existsByUsername(String username);
+
     User findByUsername(String username);
 }

@@ -18,6 +18,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtUtil {
 
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String jwtIssuer;
+
     @Value("${jwt.expiration}")
     private int jwtExpirationMs;
 
@@ -34,7 +37,7 @@ public class JwtUtil {
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setHeaderParam("kid", "service-key") // MUST match JWKS
                 .setSubject(serviceName)
-                .setIssuer("auth-server")
+                .setIssuer(jwtIssuer)
                 .setAudience("kms")
                 .claim("service_name", serviceName)
                 .setIssuedAt(new Date())
@@ -43,7 +46,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String generateUserToken(CustomUserDetails userDetails) {
+    public String generateUserToken(CustomUserDetails userDetails, Boolean is2faVerified) {
         UUID id = userDetails.getId();
         String username = userDetails.getUsername();
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
@@ -52,7 +55,7 @@ public class JwtUtil {
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setHeaderParam("kid", "user-key") // MUST match JWKS
                 .setSubject(id.toString())
-                .setIssuer("auth-server")
+                .setIssuer(jwtIssuer)
                 .setAudience("kms backend") // or use .claim("aud", List.of(...))
                 .claim("username", username)
                 .claim("role", authorities.stream()
@@ -60,10 +63,10 @@ public class JwtUtil {
                         .map(GrantedAuthority::getAuthority)
                         .map(role -> role.replaceFirst("^ROLE_", ""))
                         .orElse("UNKNOWN"))
-                .claim("2fa_verified", false)
+                .claim("2fa_verified", is2faVerified)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(userKeyPair.getPrivate(), SignatureAlgorithm.PS256)
                 .compact();
-    }    // Add similar getUsername/getRole as needed
+    }
 }
