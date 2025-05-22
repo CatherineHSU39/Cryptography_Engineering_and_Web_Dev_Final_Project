@@ -22,7 +22,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 @RequestMapping("/.well-known")
 public class JwksController {
 
-    @Value("${JWT_ISSUER_URI}")
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String jwtIssuerUri;
 
     @Autowired
