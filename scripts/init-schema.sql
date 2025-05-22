@@ -3,8 +3,8 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR NOT NULL UNIQUE,
     password_hash VARCHAR NOT NULL,
-    encrypted_totp_secret VARCHAR NOT NULL,
-    role VARCHAR NOT NULL CHECK (role IN ('user', 'admin', 'auditor')),
+    encrypted_totp_secret VARCHAR,
+    role VARCHAR NOT NULL CHECK (role IN ('USER', 'ADMIN', 'AUDITOR')),
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 

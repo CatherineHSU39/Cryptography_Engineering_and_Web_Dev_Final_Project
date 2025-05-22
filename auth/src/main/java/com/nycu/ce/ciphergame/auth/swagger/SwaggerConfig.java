@@ -1,4 +1,4 @@
-package com.nycu.ce.ciphergame.backend.swagger;
+package com.nycu.ce.ciphergame.auth.swagger;
 
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;

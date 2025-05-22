@@ -22,6 +22,7 @@ services:
     depends_on:
       - db
     environment:
+      - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=${BACKEND_DB_URL}
       - SPRING_DATASOURCE_USERNAME=${BACKEND_USER}
@@ -36,11 +37,13 @@ services:
     depends_on:
       - db
     environment:
+      - SERVER_PORT=8081
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=${AUTH_DB_URL}
       - SPRING_DATASOURCE_USERNAME=${AUTH_USER}
       - SPRING_DATASOURCE_PASSWORD=${AUTH_PASSWORD}
       - JWT_ISSUER_URI=${JWT_ISSUER_URI}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
 
   kms:
     container_name: kms
