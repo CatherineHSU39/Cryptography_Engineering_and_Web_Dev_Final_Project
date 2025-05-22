@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class UserSigninResponse {
+
     private UUID id;
     private String username;
     private String role;

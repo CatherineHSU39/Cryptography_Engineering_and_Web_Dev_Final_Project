@@ -27,12 +27,12 @@ public class JwksController {
     @GetMapping("/jwks.json")
     public Map<String, Object> getJwks() {
         List<JWK> jwks = allKeys.entrySet().stream()
-            .map(entry -> new RSAKey.Builder((RSAPublicKey) entry.getValue().getPublic())
+                .map(entry -> new RSAKey.Builder((RSAPublicKey) entry.getValue().getPublic())
                 .keyID(entry.getKey()) // This becomes the "kid"
                 .algorithm(JWSAlgorithm.PS256)
                 .keyUse(KeyUse.SIGNATURE)
                 .build())
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         return new JWKSet(jwks).toJSONObject(); // ✅ Exposes all keys in standard JWKS format
     }

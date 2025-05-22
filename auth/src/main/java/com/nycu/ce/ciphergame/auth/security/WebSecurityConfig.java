@@ -15,8 +15,7 @@ public class WebSecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authConfig
-    ) throws Exception {
+            AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
@@ -28,19 +27,18 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.disable()) // Optional: Enable CORS if frontend interacts directly
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.disable()) // Optional: Enable CORS if frontend interacts directly
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/auth/register",
-                    "/auth/login",
-                    "/.well-known/jwks.json",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**"
-                ).permitAll()
-                .anyRequest().authenticated()
-            );
+                        "/auth/register",
+                        "/auth/login",
+                        "/.well-known/jwks.json",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**")
+                .permitAll()
+                .anyRequest().authenticated());
 
         return http.build();
     }

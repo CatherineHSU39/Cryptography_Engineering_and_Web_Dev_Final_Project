@@ -8,10 +8,13 @@ import org.springframework.stereotype.Service;
 import com.nycu.ce.ciphergame.auth.entity.User;
 import com.nycu.ce.ciphergame.auth.repository.UserRepository;
 import com.nycu.ce.ciphergame.auth.security.CustomUserDetails;
+
 @Service
-public class CustomUserDetailsService  implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
+
     @Autowired
     private UserRepository userRepository;
+
     @Override
     public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);

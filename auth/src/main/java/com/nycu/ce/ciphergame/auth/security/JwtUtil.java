@@ -65,5 +65,5 @@ public class JwtUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(userKeyPair.getPrivate(), SignatureAlgorithm.PS256)
                 .compact();
-    }    // Add similar getUsername/getRole as needed
+    } // Add similar getUsername/getRole as needed
 }

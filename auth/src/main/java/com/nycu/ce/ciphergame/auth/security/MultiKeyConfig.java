@@ -27,13 +27,10 @@ public class MultiKeyConfig {
 
     @Bean
     public Map<String, KeyPair> allKeys(
-        @Qualifier("userKeyPair") KeyPair userKeyPair,
-        @Qualifier("serviceKeyPair") KeyPair serviceKeyPair
-    ) {
+            @Qualifier("userKeyPair") KeyPair userKeyPair,
+            @Qualifier("serviceKeyPair") KeyPair serviceKeyPair) {
         return Map.of(
-            "user-key", userKeyPair,
-            "service-key", serviceKeyPair
-        );
+                "user-key", userKeyPair,
+                "service-key", serviceKeyPair);
     }
 }
-

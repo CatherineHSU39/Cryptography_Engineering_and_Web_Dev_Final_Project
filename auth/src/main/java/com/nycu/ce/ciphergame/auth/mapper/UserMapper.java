@@ -9,6 +9,7 @@ import com.nycu.ce.ciphergame.auth.security.CustomUserDetails;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+
     User toEntity(UserRegisterRequest dto);
 
     UserSigninResponse toDto(CustomUserDetails userDetails, String token);

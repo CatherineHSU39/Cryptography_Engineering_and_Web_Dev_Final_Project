@@ -11,6 +11,7 @@ import com.nycu.ce.ciphergame.auth.repository.UserRepository;
 
 @Service
 public class UserService {
+
     @Autowired
     private UserRepository userRepository;
 

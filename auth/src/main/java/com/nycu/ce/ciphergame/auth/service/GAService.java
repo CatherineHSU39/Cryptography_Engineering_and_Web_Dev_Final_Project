@@ -34,8 +34,7 @@ public class GAService {
     // Validate the TOTP code
     public boolean isValid(String secret, int code) {
         GoogleAuthenticator gAuth = new GoogleAuthenticator(
-                new GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder().build()
-        );
+                new GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder().build());
         return gAuth.authorize(secret, code);
     }
 

@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue
     private UUID id;
@@ -33,11 +34,7 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
-    @Column(
-        name = "created_at", 
-        nullable = false, 
-        updatable = false
-        )
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @PrePersist
