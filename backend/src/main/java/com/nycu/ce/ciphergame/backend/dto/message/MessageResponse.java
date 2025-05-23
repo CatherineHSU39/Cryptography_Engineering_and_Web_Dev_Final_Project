@@ -10,6 +10,7 @@ public class MessageResponse {
     private UUID messageId;
     private UUID groupId;
     private UUID senderId;
+    private String senderName;
     private String encryptedMessage;
     private LocalDateTime createdAt;
 }

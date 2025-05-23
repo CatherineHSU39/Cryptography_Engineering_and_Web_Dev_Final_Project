@@ -1,13 +1,16 @@
 package com.nycu.ce.ciphergame.backend.dto.group;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class CUGroupResponse {
+
     private UUID id;
     private String name;
-    private Set<UUID> memberIds;
+    private List<GroupMemberResponse> members;
 }

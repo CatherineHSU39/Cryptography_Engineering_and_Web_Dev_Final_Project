@@ -14,15 +14,21 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 @Table(name = "messages")
 public class Message {
-    
+
     @Id
+    @EqualsAndHashCode.Include
+    @ToString.Include
     @GeneratedValue
     private UUID id;
 
@@ -37,13 +43,16 @@ public class Message {
     @Column(name = "encrypted_message", nullable = false)
     private String encryptedMessage;
 
+    @EqualsAndHashCode.Include
+    @ToString.Include
     @Column(
-        name = "created_at", 
-        nullable = false, 
-        updatable = false
-        )
+            name = "created_at",
+            nullable = false,
+            updatable = false
+    )
     private LocalDateTime createdAt;
 
+    @ToString.Include
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 

@@ -1,7 +1,6 @@
 package com.nycu.ce.ciphergame.backend.repository;
 
-import java.util.Set;
-import java.util.UUID;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +12,7 @@ import com.nycu.ce.ciphergame.backend.entity.GroupMemberId;
 
 @Repository
 public interface GroupMemberRepository extends JpaRepository<GroupMember, GroupMemberId> {
-    @Query("SELECT gm.id.userId FROM GroupMember gm WHERE gm.id.groupId = :groupId")
-    Set<UUID> findUserIdsByGroupId(@Param("groupId") UUID groupId);
+
+    @Query("SELECT gm FROM GroupMember gm WHERE gm.id = :id")
+    Optional<GroupMember> findByIdSafe(@Param("id") GroupMemberId id);
 }

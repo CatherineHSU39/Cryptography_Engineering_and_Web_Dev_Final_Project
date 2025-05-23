@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 public class CUGroupRequest {
+
     private String name;
     private Set<UUID> memberIds;
 }

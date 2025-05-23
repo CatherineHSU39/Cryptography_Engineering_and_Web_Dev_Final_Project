@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 import com.nycu.ce.ciphergame.backend.entity.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID>{
+public interface UserRepository extends JpaRepository<User, UUID> {
 }

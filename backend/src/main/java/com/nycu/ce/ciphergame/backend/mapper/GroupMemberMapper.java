@@ -1,18 +1,25 @@
 package com.nycu.ce.ciphergame.backend.mapper;
 
-import java.util.List;
+import org.springframework.stereotype.Component;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-
+import com.nycu.ce.ciphergame.backend.dto.group.GetAllGroupResponse;
 import com.nycu.ce.ciphergame.backend.dto.group.GroupMemberResponse;
 import com.nycu.ce.ciphergame.backend.entity.GroupMember;
 
-@Mapper(componentModel = "spring")
-public interface GroupMemberMapper {
-    @Mapping(source = "user.id", target = "userId")
-    @Mapping(source = "user.username", target = "username")
-    GroupMemberResponse toDTO(GroupMember member);
+@Component
+public class GroupMemberMapper {
 
-    List<GroupMemberResponse> toDTOList(List<GroupMember> members);
+    public GroupMemberResponse toDTO(GroupMember member) {
+        return GroupMemberResponse.builder()
+                .userId(member.getUser().getId())
+                .username(member.getUser().getUsername())
+                .build();
+    }
+
+    public GetAllGroupResponse toDTOGetAll(GroupMember entity) {
+        return GetAllGroupResponse.builder()
+                .id(entity.getGroup().getId())
+                .name(entity.getGroup().getName())
+                .build();
+    }
 }

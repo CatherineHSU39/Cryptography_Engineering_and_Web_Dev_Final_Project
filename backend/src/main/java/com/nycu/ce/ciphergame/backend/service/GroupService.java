@@ -14,10 +14,13 @@ import com.nycu.ce.ciphergame.backend.dto.group.GetAllGroupResponse;
 import com.nycu.ce.ciphergame.backend.dto.group.GetGroupResponse;
 import com.nycu.ce.ciphergame.backend.entity.Group;
 import com.nycu.ce.ciphergame.backend.entity.GroupMember;
+import com.nycu.ce.ciphergame.backend.entity.GroupMemberId;
 import com.nycu.ce.ciphergame.backend.entity.User;
 import com.nycu.ce.ciphergame.backend.mapper.GroupMapper;
+import com.nycu.ce.ciphergame.backend.mapper.GroupMemberMapper;
 import com.nycu.ce.ciphergame.backend.repository.GroupMemberRepository;
 import com.nycu.ce.ciphergame.backend.repository.GroupRepository;
+import com.nycu.ce.ciphergame.backend.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -29,66 +32,103 @@ public class GroupService {
     private GroupRepository groupRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private GroupMemberRepository groupMemberRepository;
 
     @Autowired
     private GroupMapper groupMapper;
 
-    public GetGroupResponse getGroupById(UUID id) {
-        return groupRepository.findById(id)
-                .map(groupMapper::toDTOGet)
+    @Autowired
+    private GroupMemberMapper groupMemberMapper;
+
+    public GetGroupResponse getGroupById(UUID userId, UUID groupId) {
+
+        Group group = groupRepository.findById(groupId)
                 .orElse(null);
+
+        return groupMapper.toDTOGet(group);
     }
 
-    public List<GetAllGroupResponse> getAllGroups() {
-        return groupRepository.findAll().stream()
-                .map(groupMapper::toDTOGetAll)
+    @Transactional
+    public List<GetAllGroupResponse> getAllGroups(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getGroup().stream()
+                .map(groupMemberMapper::toDTOGetAll)
                 .collect(Collectors.toList());
     }
-    
-    public CUGroupResponse createGroup(CUGroupRequest groupRequest) {
-        Group group = groupMapper.toEntity(groupRequest);
 
-        Group newGroup = groupRepository.save(group);
+    @Transactional
+    public CUGroupResponse createGroup(UUID creatorId, CUGroupRequest dto) {
+        // Step 1: Save group
+        Group group = Group.builder()
+                .name(dto.getName())
+                .build();
+        Group newGroup = groupRepository.save(group); // Group now has ID
 
-        Set<User> users = groupRequest.getMemberIds().stream()
-            .map(userId -> new User(userId))
-            .collect(Collectors.toSet());
+        // Step 2: Add members to group
+        dto.getMemberIds().add(creatorId);
+        List<User> users = userRepository.findAllById(dto.getMemberIds());
 
-        Set<GroupMember> newMembers = users.stream()
-            .map(user -> new GroupMember(user, newGroup))
-            .collect(Collectors.toSet());
+        if (users.size() != dto.getMemberIds().size()) {
+            Set<UUID> foundIds = users.stream().map(User::getId).collect(Collectors.toSet());
+            List<UUID> missing = dto.getMemberIds().stream()
+                    .filter(id -> !foundIds.contains(id))
+                    .toList();
+            throw new RuntimeException("Some users not found: " + missing);
+        }
 
-        groupMemberRepository.saveAll(newMembers);
-        return groupMapper.toDTOCreateUpdate(group);
+        newGroup.getMembers().addAll(users.stream()
+                .map(user -> new GroupMember(user, newGroup))
+                .toList()
+        );
+
+        return groupMapper.toDTOCreateUpdate(newGroup);
     }
 
     public CUGroupResponse updateGroup(UUID groupId, CUGroupRequest groupRequest) {
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
+                .orElse(null);
 
-        Set<UUID> existingUserIds = groupMemberRepository.findUserIdsByGroupId(groupId);
+        List<UUID> userIds = groupRequest.getMemberIds().stream().distinct().toList();
+        List<User> users = userRepository.findAllById(userIds);
 
-        Set<User> usersToAdd = groupRequest.getMemberIds().stream()
-            .filter(userId -> !existingUserIds.contains(userId))
-            .map(userId -> new User(userId))
-            .collect(Collectors.toSet());
-
-        Set<GroupMember> newMembers = usersToAdd.stream()
-            .map(user -> new GroupMember(user, group))
-            .collect(Collectors.toSet());
-
-        groupMemberRepository.saveAll(newMembers);
+        if (users.size() != userIds.size()) {
+            Set<UUID> foundIds = users.stream().map(User::getId).collect(Collectors.toSet());
+            List<UUID> missing = userIds.stream()
+                    .filter(id -> !foundIds.contains(id))
+                    .toList();
+            throw new RuntimeException("Some users not found: " + missing);
+        }
 
         if (groupRequest.getName() != null) {
             group.setName(groupRequest.getName());
         }
-        
-        Group updatedGroup = groupRepository.save(group);
+
+        List<GroupMember> oldMembers = group.getMembers();
+        List<GroupMember> newMembers = oldMembers.stream()
+                .filter(member -> !oldMembers.contains(member))
+                .toList();
+        List<GroupMember> removeMembers = oldMembers.stream()
+                .filter(member -> !newMembers.contains(member))
+                .toList();
+        group.getMembers().addAll(newMembers);
+        group.getMembers().removeAll(removeMembers);
+
+        Group updatedGroup = groupRepository.save(group); // cascades GroupMember
         return groupMapper.toDTOCreateUpdate(updatedGroup);
     }
 
     public void deleteGroup(UUID id) {
         groupRepository.deleteById(id);
+    }
+
+    public boolean isUserInGroup(UUID userId, UUID groupId) {
+        return groupMemberRepository.existsById(GroupMemberId.builder()
+                .userId(userId)
+                .groupId(groupId)
+                .build());
     }
 }

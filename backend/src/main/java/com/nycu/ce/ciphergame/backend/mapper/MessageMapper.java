@@ -1,18 +1,27 @@
 package com.nycu.ce.ciphergame.backend.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import java.util.UUID;
 
-import com.nycu.ce.ciphergame.backend.dto.message.MessageRequest;
+import org.springframework.stereotype.Component;
+
 import com.nycu.ce.ciphergame.backend.dto.message.MessageResponse;
 import com.nycu.ce.ciphergame.backend.entity.Message;
 
-@Mapper(componentModel = "spring")
-public interface MessageMapper {
-    Message toEntity(MessageRequest dto);
+@Component
+public class MessageMapper {
 
-    @Mapping(source = "sender.id", target = "senderId")
-    @Mapping(source = "group.id", target = "groupId")
-    @Mapping(source = "id", target = "messageId")
-    MessageResponse toDTO(Message message);
+    public MessageResponse toDTO(Message message) {
+        MessageResponse response = new MessageResponse();
+        UUID senderId = message.getSender() != null ? message.getSender().getId() : null;
+        UUID groupId = message.getGroup() != null ? message.getGroup().getId() : null;
+        System.out.println(">>> MAPPING message: senderId=" + senderId + ", groupId=" + groupId);
+
+        response.setMessageId(message.getId());
+        response.setEncryptedMessage(message.getEncryptedMessage());
+        response.setGroupId(message.getGroup().getId());
+        response.setSenderId(message.getSender().getId());
+        response.setSenderName(message.getSender().getUsername());
+        response.setCreatedAt(message.getCreatedAt());
+        return response;
+    }
 }

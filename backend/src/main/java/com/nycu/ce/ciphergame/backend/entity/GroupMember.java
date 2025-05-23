@@ -5,38 +5,45 @@ import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
-@NoArgsConstructor
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 @Table(name = "group_members")
 public class GroupMember {
 
+    @EqualsAndHashCode.Include
+    @ToString.Include
     @EmbeddedId
     private GroupMemberId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("groupId")
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
+    @ToString.Include
+    @EqualsAndHashCode.Include
     @Column(
-        name = "joined_at", 
-        nullable = false, 
-        updatable = false
-        )
+            name = "joined_at",
+            nullable = false,
+            updatable = false
+    )
     private LocalDateTime joinedAt;
 
     @PrePersist
@@ -44,7 +51,13 @@ public class GroupMember {
         this.joinedAt = LocalDateTime.now();
     }
 
+    protected GroupMember() {
+    }
+
     public GroupMember(User user, Group group) {
+        if (user.getId() == null || group.getId() == null) {
+            throw new IllegalArgumentException("User ID or Group ID is null");
+        }
         this.user = user;
         this.group = group;
         this.id = new GroupMemberId(user.getId(), group.getId());

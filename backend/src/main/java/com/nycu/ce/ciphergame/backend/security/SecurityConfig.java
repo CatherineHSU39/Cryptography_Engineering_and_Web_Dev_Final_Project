@@ -14,25 +14,25 @@ import com.nycu.ce.ciphergame.backend.rls.RlsSessionFilter;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
     @Autowired
     private RlsSessionFilter rlsSessionFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/swagger-ui/**",
-                    "/swagger-ui.html", 
-                    "/v3/api-docs/**"
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**"
                 ).permitAll()
                 .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(Customizer.withDefaults())
-            )
-            .addFilterAfter(rlsSessionFilter, BearerTokenAuthenticationFilter.class);
+                )
+                .addFilterAfter(rlsSessionFilter, BearerTokenAuthenticationFilter.class);
         return http.build();
     }
 }
-
