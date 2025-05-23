@@ -61,30 +61,27 @@ public class GroupService {
     }
 
     @Transactional
-    public CUGroupResponse createGroup(UUID creatorId, CUGroupRequest dto) {
+    public CUGroupResponse createGroup(UUID creatorId, CUGroupRequest groupRequest) {
         // Step 1: Save group
         Group group = Group.builder()
-                .name(dto.getName())
+                .name(groupRequest.getName())
                 .build();
         Group newGroup = groupRepository.save(group); // Group now has ID
 
         // Step 2: Add members to group
-        dto.getMemberIds().add(creatorId);
-        List<User> users = userRepository.findAllById(dto.getMemberIds());
-
-        if (users.size() != dto.getMemberIds().size()) {
+        groupRequest.getMemberIds().add(creatorId);
+        List<User> users = userRepository.findAllById(groupRequest.getMemberIds());
+        if (users.size() != groupRequest.getMemberIds().size()) {
             Set<UUID> foundIds = users.stream().map(User::getId).collect(Collectors.toSet());
-            List<UUID> missing = dto.getMemberIds().stream()
+            List<UUID> missing = groupRequest.getMemberIds().stream()
                     .filter(id -> !foundIds.contains(id))
                     .toList();
             throw new RuntimeException("Some users not found: " + missing);
         }
-
         newGroup.getMembers().addAll(users.stream()
                 .map(user -> new GroupMember(user, newGroup))
                 .toList()
         );
-
         return groupMapper.toDTOCreateUpdate(newGroup);
     }
 
@@ -94,21 +91,16 @@ public class GroupService {
 
         List<UUID> userIds = groupRequest.getMemberIds().stream().distinct().toList();
         List<User> users = userRepository.findAllById(userIds);
-
-        if (users.size() != userIds.size()) {
-            Set<UUID> foundIds = users.stream().map(User::getId).collect(Collectors.toSet());
-            List<UUID> missing = userIds.stream()
-                    .filter(id -> !foundIds.contains(id))
-                    .toList();
-            throw new RuntimeException("Some users not found: " + missing);
-        }
+        List<GroupMember> targetMembers = users.stream()
+                .map(user -> new GroupMember(user, group))
+                .toList();
 
         if (groupRequest.getName() != null) {
             group.setName(groupRequest.getName());
         }
 
         List<GroupMember> oldMembers = group.getMembers();
-        List<GroupMember> newMembers = oldMembers.stream()
+        List<GroupMember> newMembers = targetMembers.stream()
                 .filter(member -> !oldMembers.contains(member))
                 .toList();
         List<GroupMember> removeMembers = oldMembers.stream()

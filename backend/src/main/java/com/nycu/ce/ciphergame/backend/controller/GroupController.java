@@ -46,9 +46,9 @@ public class GroupController {
     @GetMapping("/{groupId}")
     public ResponseEntity<GetGroupResponse> getGroupById(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId) {
         UUID userId = UUID.fromString(jwt.getSubject());
-        if (!groupService.isUserInGroup(userId, groupId)) {
-            return ResponseEntity.status(403).build();
-        }
+        // if (!groupService.isUserInGroup(userId, groupId)) {
+        //     return ResponseEntity.status(403).build();
+        // }
         GetGroupResponse group = groupService.getGroupById(userId, groupId);
         return ResponseEntity.ok(group);
     }
@@ -56,9 +56,9 @@ public class GroupController {
     @PutMapping("/{groupId}")
     public ResponseEntity<CUGroupResponse> updateGroup(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId, @RequestBody CUGroupRequest group) {
         UUID userId = UUID.fromString(jwt.getSubject());
-        if (!groupService.isUserInGroup(userId, groupId)) {
-            return ResponseEntity.status(403).build();
-        }
+        // if (!groupService.isUserInGroup(userId, groupId)) {
+        //     return ResponseEntity.status(403).build();
+        // }
         CUGroupResponse updatedGroup = groupService.updateGroup(groupId, group);
         return ResponseEntity.ok(updatedGroup);
     }
@@ -70,6 +70,6 @@ public class GroupController {
             return ResponseEntity.status(403).build();
         }
         groupService.deleteGroup(groupId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }

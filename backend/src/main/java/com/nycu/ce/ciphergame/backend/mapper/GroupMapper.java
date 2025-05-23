@@ -40,9 +40,9 @@ public class GroupMapper {
                 .members(entity.getMembers().stream()
                         .map(groupMemberMapper::toDTO)
                         .toList())
-                .messages(entity.getMessages().stream()
-                        .map(messageMapper::toDTO)
-                        .toList())
+                // .messages(entity.getMessages().stream()
+                //         .map(messageMapper::toDTO)
+                //         .toList())
                 .build();
     }
 }

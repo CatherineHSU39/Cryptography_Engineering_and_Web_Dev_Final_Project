@@ -44,10 +44,9 @@ public class Group {
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GroupMember> members = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Message> messages = new ArrayList<>();
-
+    // @Builder.Default
+    // @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    // private List<Message> messages = new ArrayList<>();
     @EqualsAndHashCode.Include
     @ToString.Include
     @Column(name = "created_at", nullable = false, updatable = false)
