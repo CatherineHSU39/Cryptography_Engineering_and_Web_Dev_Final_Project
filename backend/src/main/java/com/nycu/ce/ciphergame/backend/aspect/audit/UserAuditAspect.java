@@ -7,6 +7,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import com.nycu.ce.ciphergame.backend.dao.UserDAO;
@@ -24,13 +25,14 @@ public class UserAuditAspect {
     @Autowired
     private AuditService auditService;
 
-    @Pointcut("execution(* com.example.demo.service.UserService.updateUser())")
+    @Pointcut("execution(* com.nycu.ce.ciphergame.backend.controller.UserController.updateCurrentUser(..))")
     public void userUpdateMethods() {
     }
 
     @Around("userUpdateMethods()")
     public Object aroundUpdateUser(ProceedingJoinPoint joinPoint) throws Throwable {
-        UUID userId = (UUID) joinPoint.getArgs()[0];
+        Jwt jwt = (Jwt) joinPoint.getArgs()[0];
+        UUID userId = UUID.fromString(jwt.getSubject());
         User userBefore = userDAO.getDetachedUserById(userId);
 
         Object result = joinPoint.proceed();
