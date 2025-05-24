@@ -62,7 +62,7 @@ FROM users;
 GRANT SELECT, INSERT, UPDATE, DELETE ON messages, groups, group_members, message_dek_links TO ${BACKEND_USER};
 
 -- Grant SELECT on the view to backend only
-GRANT SELECT ON users_backend_view TO ${BACKEND_USER};
+GRANT SELECT, UPDATE ON users_backend_view TO ${BACKEND_USER};
 
 -- Grant SELECT, INSERT on the backend_audit_log
 GRANT SELECT, INSERT on backend_audit_log TO ${BACKEND_USER};
