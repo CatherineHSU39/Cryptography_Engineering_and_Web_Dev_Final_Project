@@ -20,6 +20,7 @@ import com.nycu.ce.ciphergame.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 
 @Service
+@Transactional
 public class MessageService {
 
     @Autowired
@@ -60,6 +61,17 @@ public class MessageService {
 
         messageRepository.save(newMessage);
         return messageMapper.toDTO(newMessage);
+    }
+
+    public MessageResponse updateMessage(UUID messageId, MessageRequest dto) {
+        Message targetMessage = messageRepository.findById(messageId).orElse(null);
+
+        if (dto.getEncryptedMessage() != null) {
+            targetMessage.setEncryptedMessage(dto.getEncryptedMessage());
+        }
+        messageRepository.save(targetMessage);
+        return messageMapper.toDTO(targetMessage);
+        
     }
 
     public boolean isMessageInGroup(UUID messageId, UUID groupId) {

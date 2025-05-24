@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -68,6 +69,22 @@ public class MessageController {
             return ResponseEntity.status(403).build();
         }
         MessageResponse message = messageService.createMessage(senderId, groupId, messageRequest);
+        return ResponseEntity.ok(message);
+    }
+
+    @PutMapping("/{messageId}")
+    public ResponseEntity<MessageResponse> updateMessage(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID groupId,
+            @PathVariable UUID messageId,
+            @RequestBody MessageRequest messageRequest
+    ) {
+        UUID senderId = UUID.fromString(jwt.getSubject());
+        if (!groupService.isUserInGroup(senderId, groupId)
+                || !messageService.isMessageInGroup(messageId, groupId)) {
+            return ResponseEntity.status(403).build();
+        }
+        MessageResponse message = messageService.updateMessage(messageId, messageRequest);
         return ResponseEntity.ok(message);
     }
 }
