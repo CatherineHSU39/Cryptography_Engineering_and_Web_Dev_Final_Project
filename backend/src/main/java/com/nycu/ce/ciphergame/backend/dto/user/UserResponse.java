@@ -11,5 +11,5 @@ public class UserResponse {
 
     private UUID id;
     private String username;
-    private String role;
+    // private String role;
 }
