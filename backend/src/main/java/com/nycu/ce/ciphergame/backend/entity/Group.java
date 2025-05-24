@@ -63,4 +63,14 @@ public class Group {
     public Group(String name) {
         this.name = name;
     }
+
+    public Group addAllMember(Set<GroupMember> newMembers) {
+        this.getMembers().addAll(newMembers);
+        return this;
+    }
+
+    public Group removeAllMember(Set<GroupMember> removeMembers) {
+        this.getMembers().removeAll(removeMembers);
+        return this;
+    }
 }
