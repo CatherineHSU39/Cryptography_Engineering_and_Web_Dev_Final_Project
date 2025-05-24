@@ -90,7 +90,7 @@ public class MessageController {
     }
 
     @DeleteMapping("/{messageId}")
-    public ResponseEntity<Void> updateMessage(
+    public ResponseEntity<Void> deleteMessage(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID groupId,
             @PathVariable UUID messageId
