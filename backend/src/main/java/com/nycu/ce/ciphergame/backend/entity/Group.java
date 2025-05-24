@@ -1,8 +1,9 @@
 package com.nycu.ce.ciphergame.backend.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
@@ -37,16 +38,17 @@ public class Group {
     @ToString.Include
     private UUID id;
 
+    @Builder.Default
     @Column(name = "name", nullable = false)
-    private String name;
+    private String name = "";
 
     @Builder.Default
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GroupMember> members = new ArrayList<>();
+    private Set<GroupMember> members = new HashSet<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Message> messages = new ArrayList<>();
+    private Set<Message> messages = new HashSet<>();
 
     @EqualsAndHashCode.Include
     @ToString.Include
@@ -61,5 +63,4 @@ public class Group {
     public Group(String name) {
         this.name = name;
     }
-
 }
