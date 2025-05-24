@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.nycu.ce.ciphergame.backend.dto.user.UserResponse;
 import com.nycu.ce.ciphergame.backend.dto.user.UserRequest;
 import com.nycu.ce.ciphergame.backend.service.UserService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 @RestController
 @RequestMapping("/app/users")
@@ -36,7 +36,7 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    public UserResponse updateCurrentUser(@RequestBody UserRequest user, @AuthenticationPrincipal Jwt jwt) {
+    public UserResponse updateCurrentUser(@AuthenticationPrincipal Jwt jwt, @RequestBody UserRequest user) {
         UUID id = UUID.fromString(jwt.getSubject());
         return userService.updateUser(id, user);
     }
