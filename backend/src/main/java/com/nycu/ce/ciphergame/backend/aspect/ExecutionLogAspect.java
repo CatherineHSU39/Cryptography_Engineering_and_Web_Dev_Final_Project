@@ -10,25 +10,17 @@ import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
-public class GroupLogAspect {
+public class ExecutionLogAspect {
 
     @Pointcut("execution(* com.nycu.ce.ciphergame.backend.service.GroupService.*(..))")
     public void groupServiceMethods() {
     }
 
-    @Pointcut("execution(* com.nycu.ce.ciphergame.backend.repository.GroupRepository.*(..))")
-    public void groupRepositoryMethods() {
+    @Pointcut("execution(* com.nycu.ce.ciphergame.backend.repository.*.*(..))")
+    public void repositoryMethods() {
     }
 
-    @Pointcut("execution(* com.nycu.ce.ciphergame.backend.repository.GroupMemberRepository.*(..))")
-    public void groupMemberRepositoryMethods() {
-    }
-
-    @Pointcut("execution(* com.nycu.ce.ciphergame.backend.repository.MessageRepository.*(..))")
-    public void messageRepositoryMethods() {
-    }
-
-    @Around("groupServiceMethods() || groupRepositoryMethods() || groupMemberRepositoryMethods() || messageRepositoryMethods()")
+    @Around("groupServiceMethods() || repositoryMethods()")
     public Object logExecutionDetails(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().toShortString();
         Object[] args = joinPoint.getArgs();
