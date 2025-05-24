@@ -64,6 +64,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON messages, groups, group_members, message
 -- Grant SELECT on the view to backend only
 GRANT SELECT ON users_backend_view TO ${BACKEND_USER};
 
+-- Grant SELECT, INSERT on the backend_audit_log
+GRAONT SELECT, INSERT on backend_audit_log TO ${BACKEND_USER};
+
 -- Auth Server
 GRANT SELECT, INSERT, UPDATE ON users, encrypted_deks, user_totp_dek_links TO ${AUTH_USER};
 GRANT INSERT ON audit_log TO ${AUTH_USER};
