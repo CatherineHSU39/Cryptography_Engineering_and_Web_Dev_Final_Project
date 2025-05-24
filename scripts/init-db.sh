@@ -65,15 +65,16 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON messages, groups, group_members, message
 GRANT SELECT ON users_backend_view TO ${BACKEND_USER};
 
 -- Grant SELECT, INSERT on the backend_audit_log
-GRAONT SELECT, INSERT on backend_audit_log TO ${BACKEND_USER};
+GRANT SELECT, INSERT on backend_audit_log TO ${BACKEND_USER};
+GRANT USAGE, SELECT ON SEQUENCE backend_audit_log_id_seq TO ${BACKEND_USER};
 
 -- Auth Server
 GRANT SELECT, INSERT, UPDATE ON users, encrypted_deks, user_totp_dek_links TO ${AUTH_USER};
-GRANT INSERT ON audit_log TO ${AUTH_USER};
+GRANT INSERT ON kms_audit_log TO ${AUTH_USER};
 
 -- KMS
 GRANT SELECT, INSERT, UPDATE ON encrypted_deks, cmks TO ${KMS_USER};
-GRANT SELECT, INSERT ON audit_log TO ${KMS_USER};
+GRANT SELECT, INSERT ON kms_audit_log TO ${KMS_USER};
 
 EOF
 

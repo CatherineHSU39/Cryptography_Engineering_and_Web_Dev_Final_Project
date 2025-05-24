@@ -53,7 +53,7 @@ VALUES
    decode('cafebabe', 'hex'), true, now());
 
 -- Insert AuditLog
-INSERT INTO audit_log (id, actor_id, action, target_id, timestamp, hash, prev_hash)
+INSERT INTO kms_audit_log (id, actor_id, action, target_id, timestamp, hash, prev_hash)
 VALUES
   ('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee', '22222222-2222-4222-8222-222222222222',
    'wrap', 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', now(), 'hash_1', 'hash_0');
