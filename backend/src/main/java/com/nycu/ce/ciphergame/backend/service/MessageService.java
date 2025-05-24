@@ -71,7 +71,12 @@ public class MessageService {
         }
         messageRepository.save(targetMessage);
         return messageMapper.toDTO(targetMessage);
-        
+
+    }
+
+    public Void deleteMessage(UUID messageId) {
+        messageRepository.deleteById(messageId);
+        return null;
     }
 
     public boolean isMessageInGroup(UUID messageId, UUID groupId) {

@@ -7,10 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -86,5 +87,20 @@ public class MessageController {
         }
         MessageResponse message = messageService.updateMessage(messageId, messageRequest);
         return ResponseEntity.ok(message);
+    }
+
+    @DeleteMapping("/{messageId}")
+    public ResponseEntity<Void> updateMessage(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID groupId,
+            @PathVariable UUID messageId
+    ) {
+        UUID senderId = UUID.fromString(jwt.getSubject());
+        if (!groupService.isUserInGroup(senderId, groupId)
+                || !messageService.isMessageInGroup(messageId, groupId)) {
+            return ResponseEntity.status(403).build();
+        }
+        messageService.deleteMessage(messageId);
+        return ResponseEntity.ok().build();
     }
 }
