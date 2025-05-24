@@ -12,9 +12,11 @@ import com.nycu.ce.ciphergame.backend.dto.user.UserRequest;
 import com.nycu.ce.ciphergame.backend.mapper.UserMapper;
 import com.nycu.ce.ciphergame.backend.repository.UserRepository;
 
+import com.nycu.ce.ciphergame.backend.entity.User;
+
 @Service
 public class UserService {
-    
+
     @Autowired
     private UserRepository userRepository;
 
@@ -34,12 +36,14 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserResponse updateUser(UUID id, UserRequest user) {
-        return userRepository.findById(id)
-                .map(existingUser -> {
-                    existingUser.setUsername(user.getUsername());
-                    return userMapper.toDTO(userRepository.save(existingUser));
-                })
-                .orElse(null);
+    public UserResponse updateUser(UUID id, UserRequest dto) {
+        User user = userRepository.findById(id).orElse(null);
+
+        if (dto.getUsername() != null) {
+            user.setUsername(dto.getUsername());
+        }
+
+        userRepository.save(user);
+        return userMapper.toDTO(user);
     }
 }
