@@ -68,8 +68,8 @@ CREATE TABLE IF NOT EXISTS cmks (
     PRIMARY KEY (id, version)
 );
 
--- AuditLog Table
-CREATE TABLE IF NOT EXISTS audit_log (
+-- AuditLog Tables
+CREATE TABLE IF NOT EXISTS kms_audit_log (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     actor_id UUID NOT NULL REFERENCES users(id),
     action VARCHAR NOT NULL,
@@ -77,4 +77,16 @@ CREATE TABLE IF NOT EXISTS audit_log (
     timestamp TIMESTAMP NOT NULL DEFAULT now(),
     hash VARCHAR NOT NULL,
     prev_hash VARCHAR NOT NULL
+);
+
+CREATE TABLE backend_audit_log (
+    id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    user_id UUID NOT NULL,
+    action VARCHAR(50) NOT NULL,         -- e.g., 'CREATE', 'UPDATE', 'DELETE'
+    entity_type VARCHAR(50) NOT NULL,    -- e.g., 'User', 'Group', etc.
+    entity_id UUID NOT NULL,
+    column_name VARCHAR(50) NOT NULL,
+    old_value TEXT,                      -- optional: store old value
+    new_value TEXT                       -- optional: store new value
 );
