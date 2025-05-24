@@ -1,23 +1,19 @@
 package com.nycu.ce.ciphergame.backend.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.nycu.ce.ciphergame.backend.rls.RlsSessionFilter;
-
+// import com.nycu.ce.ciphergame.backend.rls.RlsSessionFilter;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private RlsSessionFilter rlsSessionFilter;
-
+    // @Autowired
+    // private RlsSessionFilter rlsSessionFilter;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -31,8 +27,8 @@ public class SecurityConfig {
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(Customizer.withDefaults())
-                )
-                .addFilterAfter(rlsSessionFilter, BearerTokenAuthenticationFilter.class);
+                );
+        // .addFilterAfter(rlsSessionFilter, BearerTokenAuthenticationFilter.class);
         return http.build();
     }
 }
