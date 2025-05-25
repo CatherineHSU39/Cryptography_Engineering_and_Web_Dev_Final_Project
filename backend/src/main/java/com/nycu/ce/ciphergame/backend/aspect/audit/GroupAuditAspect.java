@@ -2,7 +2,6 @@ package com.nycu.ce.ciphergame.backend.aspect.audit;
 
 import java.util.UUID;
 
-import org.apache.catalina.connector.Response;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -39,6 +38,11 @@ public class GroupAuditAspect {
         Jwt jwt = (Jwt) joinPoint.getArgs()[0];
         UUID userId = UUID.fromString(jwt.getSubject());
         ResponseEntity<CUGroupResponse> response = (ResponseEntity<CUGroupResponse>) result;
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            return;
+        }
+
         CUGroupResponse responseBody = response.getBody();
         UUID groupId = responseBody.getId();
         String groupName = responseBody.getName();
@@ -65,6 +69,11 @@ public class GroupAuditAspect {
         Group groupBefore = groupDAO.getDetachedGroupById(groupId);
 
         Object result = joinPoint.proceed();
+        ResponseEntity<CUGroupResponse> response = (ResponseEntity<CUGroupResponse>) result;
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            return result;
+        }
 
         Group groupAfter = groupDAO.getDetachedGroupById(groupId);
         System.out.println(">>> AOP: groupBefore = " + groupBefore.getName());
@@ -86,6 +95,11 @@ public class GroupAuditAspect {
         Group groupBefore = groupDAO.getDetachedGroupById(groupId);
 
         Object result = joinPoint.proceed();
+        ResponseEntity<CUGroupResponse> response = (ResponseEntity<CUGroupResponse>) result;
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            return result;
+        }
 
         Group dummyGroup = Group.builder().build();
         System.out.println(">>> AOP: groupBefore = " + groupBefore.getName());

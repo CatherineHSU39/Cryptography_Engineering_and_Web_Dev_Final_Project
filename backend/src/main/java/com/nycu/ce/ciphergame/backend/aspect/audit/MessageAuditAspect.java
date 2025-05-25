@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import com.nycu.ce.ciphergame.backend.dao.MessageDAO;
+import com.nycu.ce.ciphergame.backend.dto.group.CUGroupResponse;
 import com.nycu.ce.ciphergame.backend.dto.message.MessageResponse;
 import com.nycu.ce.ciphergame.backend.entity.Message;
 import com.nycu.ce.ciphergame.backend.service.audit.AuditService;
@@ -38,6 +39,11 @@ public class MessageAuditAspect {
         Jwt jwt = (Jwt) joinPoint.getArgs()[0];
         UUID userId = UUID.fromString(jwt.getSubject());
         ResponseEntity<MessageResponse> response = (ResponseEntity<MessageResponse>) result;
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            return;
+        }
+
         MessageResponse responseBody = response.getBody();
         UUID messageId = responseBody.getMessageId();
         String encryptedMessage = responseBody.getEncryptedMessage();
@@ -64,6 +70,11 @@ public class MessageAuditAspect {
         Message messageBefore = messageDAO.getDetachedMessageById(messageId);
 
         Object result = joinPoint.proceed();
+        ResponseEntity<CUGroupResponse> response = (ResponseEntity<CUGroupResponse>) result;
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            return result;
+        }
 
         Message messageAfter = messageDAO.getDetachedMessageById(messageId);
         System.out.println(">>> AOP: messageBefore = " + messageBefore.getEncryptedMessage());
@@ -85,6 +96,11 @@ public class MessageAuditAspect {
         Message messageBefore = messageDAO.getDetachedMessageById(messageId);
 
         Object result = joinPoint.proceed();
+        ResponseEntity<CUGroupResponse> response = (ResponseEntity<CUGroupResponse>) result;
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            return result;
+        }
 
         Message dummyMessage = Message.builder().build();
         System.out.println(">>> AOP: messageBefore = " + messageBefore.getEncryptedMessage());
