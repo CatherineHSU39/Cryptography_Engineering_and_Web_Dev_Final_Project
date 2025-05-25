@@ -13,12 +13,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -40,8 +44,9 @@ public class Message {
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
+    @Builder.Default
     @Column(name = "encrypted_message", nullable = false)
-    private String encryptedMessage;
+    private String encryptedMessage = "";
 
     @EqualsAndHashCode.Include
     @ToString.Include

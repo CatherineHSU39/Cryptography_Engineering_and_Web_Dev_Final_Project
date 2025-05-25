@@ -30,21 +30,29 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping()
-    public ResponseEntity<CUGroupResponse> createGroup(@AuthenticationPrincipal Jwt jwt, @RequestBody CUGroupRequest group) {
+    public ResponseEntity<CUGroupResponse> createGroup(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody CUGroupRequest group
+    ) {
         UUID userId = UUID.fromString(jwt.getSubject());
         CUGroupResponse newGroup = groupService.createGroup(userId, group);
         return ResponseEntity.ok(newGroup);
     }
 
     @GetMapping()
-    public ResponseEntity<List<GetAllGroupResponse>> getAllGroups(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<List<GetAllGroupResponse>> getAllGroups(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
         UUID userId = UUID.fromString(jwt.getSubject());
         List<GetAllGroupResponse> groups = groupService.getAllGroups(userId);
         return ResponseEntity.ok(groups);
     }
 
     @GetMapping("/{groupId}")
-    public ResponseEntity<GetGroupResponse> getGroupById(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId) {
+    public ResponseEntity<GetGroupResponse> getGroupById(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID groupId
+    ) {
         UUID userId = UUID.fromString(jwt.getSubject());
         if (!groupService.isUserInGroup(userId, groupId)) {
             return ResponseEntity.status(403).build();
@@ -54,7 +62,11 @@ public class GroupController {
     }
 
     @PutMapping("/{groupId}")
-    public ResponseEntity<CUGroupResponse> updateGroup(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId, @RequestBody CUGroupRequest group) {
+    public ResponseEntity<CUGroupResponse> updateGroup(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID groupId,
+            @RequestBody CUGroupRequest group
+    ) {
         UUID userId = UUID.fromString(jwt.getSubject());
         if (!groupService.isUserInGroup(userId, groupId)) {
             return ResponseEntity.status(403).build();
@@ -64,7 +76,10 @@ public class GroupController {
     }
 
     @DeleteMapping("/{groupId}")
-    public ResponseEntity<Void> deleteGroup(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId) {
+    public ResponseEntity<Void> deleteGroup(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID groupId
+    ) {
         UUID userId = UUID.fromString(jwt.getSubject());
         if (!groupService.isUserInGroup(userId, groupId)) {
             return ResponseEntity.status(403).build();

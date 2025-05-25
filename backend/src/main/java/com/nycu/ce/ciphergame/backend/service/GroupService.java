@@ -43,6 +43,9 @@ public class GroupService {
     @Autowired
     private GroupMemberMapper groupMemberMapper;
 
+    @Autowired
+    private GroupMemberService groupMemberService;
+
     public GetGroupResponse getGroupById(UUID userId, UUID groupId) {
 
         Group group = groupRepository.findById(groupId)
@@ -71,17 +74,7 @@ public class GroupService {
         // Step 2: Add members to group
         groupRequest.getMemberIds().add(creatorId);
         List<User> users = userRepository.findAllById(groupRequest.getMemberIds());
-        if (users.size() != groupRequest.getMemberIds().size()) {
-            Set<UUID> foundIds = users.stream().map(User::getId).collect(Collectors.toSet());
-            List<UUID> missing = groupRequest.getMemberIds().stream()
-                    .filter(id -> !foundIds.contains(id))
-                    .toList();
-            throw new RuntimeException("Some users not found: " + missing);
-        }
-        newGroup.getMembers().addAll(users.stream()
-                .map(user -> new GroupMember(user, newGroup))
-                .toList()
-        );
+        groupMemberService.createAllMemberByUser(newGroup, users);
         return groupMapper.toDTOCreateUpdate(newGroup);
     }
 
@@ -91,23 +84,22 @@ public class GroupService {
 
         List<UUID> userIds = groupRequest.getMemberIds().stream().distinct().toList();
         List<User> users = userRepository.findAllById(userIds);
-        List<GroupMember> targetMembers = users.stream()
+        Set<GroupMember> targetMembers = users.stream()
                 .map(user -> new GroupMember(user, group))
-                .toList();
+                .collect(Collectors.toSet());
 
         if (groupRequest.getName() != null) {
             group.setName(groupRequest.getName());
         }
 
-        List<GroupMember> oldMembers = group.getMembers();
-        List<GroupMember> newMembers = targetMembers.stream()
-                .filter(member -> !oldMembers.contains(member))
-                .toList();
-        List<GroupMember> removeMembers = oldMembers.stream()
-                .filter(member -> !newMembers.contains(member))
-                .toList();
-        group.getMembers().addAll(newMembers);
-        group.getMembers().removeAll(removeMembers);
+        Set<GroupMember> oldMembers = group.getMembers();
+        Set<GroupMember> newMembers = groupMemberService
+                .getAdditionalMember(targetMembers, oldMembers);
+        Set<GroupMember> removeMembers = groupMemberService
+                .getAdditionalMember(oldMembers, newMembers);
+
+        group.addAllMember(newMembers);
+        group.removeAllMember(removeMembers);
 
         Group updatedGroup = groupRepository.save(group); // cascades GroupMember
         return groupMapper.toDTOCreateUpdate(updatedGroup);
