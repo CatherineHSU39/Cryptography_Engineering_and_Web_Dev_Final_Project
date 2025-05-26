@@ -19,6 +19,23 @@ while ! docker exec db pg_isready -U "$POSTGRES_USER" > /dev/null 2>&1; do
   fi
 done
 
+echo "🧹 Dropping existing tables and views..."
+
+docker exec -i db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<EOF
+DROP VIEW IF EXISTS users_backend_view CASCADE;
+
+DROP TABLE IF EXISTS
+  backend_audit_log,
+  kms_audit_log,
+  encrypted_deks,
+  cmks,
+  group_members,
+  messages,
+  groups,
+  users
+CASCADE;
+EOF
+
 echo "📐 Creating database schema from init-schema.sql..."
 docker exec -i db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" < "$SCRIPT_DIR/init-schema.sql"
 
@@ -54,12 +71,12 @@ END
 
 -- Create safe view of user data for backend (no password, no TOTP secret)
 CREATE OR REPLACE VIEW users_backend_view AS
-SELECT id, username, role, created_at
+SELECT id, username, fetch_new_at, created_at
 FROM users;
 
 -- Grant precise permissions
 -- Backend
-GRANT SELECT, INSERT, UPDATE, DELETE ON messages, groups, group_members, message_recipients TO ${BACKEND_USER};
+GRANT SELECT, INSERT, UPDATE, DELETE ON messages, groups, group_members TO ${BACKEND_USER};
 
 -- Grant SELECT on the view to backend only
 GRANT SELECT, UPDATE ON users_backend_view TO ${BACKEND_USER};
@@ -69,7 +86,7 @@ GRANT SELECT, INSERT on backend_audit_log TO ${BACKEND_USER};
 GRANT USAGE, SELECT ON SEQUENCE backend_audit_log_id_seq TO ${BACKEND_USER};
 
 -- Auth Server
-GRANT SELECT, INSERT, UPDATE ON users, encrypted_deks, user_totp_dek_links TO ${AUTH_USER};
+GRANT SELECT, INSERT, UPDATE ON users, encrypted_deks TO ${AUTH_USER};
 GRANT INSERT ON kms_audit_log TO ${AUTH_USER};
 
 -- KMS

@@ -31,10 +31,10 @@ VALUES
    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', decode('deadbeef', 'hex'), now(), now());
 
 -- Sample Encrypted DEKs
-INSERT INTO encrypted_deks (id, owner_id, cmk_version, encrypted_dek, purpose, created_at)
+INSERT INTO encrypted_deks (id, owner_id, entity_id, cmk_version, encrypted_dek, purpose, created_at)
 VALUES
-  ('dddddddd-dddd-4ddd-8ddd-dddddddddddd', '11111111-1111-4111-8111-111111111111', 1,
-   decode('beadfeed', 'hex'), 'message', now());
+  ('dddddddd-dddd-4ddd-8ddd-dddddddddddd', '11111111-1111-4111-8111-111111111111', 
+  abababab-abab-4bab-8bab-abababababab, 1,decode('beadfeed', 'hex'), 'message', now());
 
 -- -- Link DEK to Message
 -- INSERT INTO message_dek_links (message_id, recipient_id, dek_id)
@@ -46,10 +46,10 @@ VALUES
   ('abababab-abab-4bab-8bab-abababababab', '22222222-2222-4222-8222-222222222222', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
 
 
--- Link DEK to TOTP
-INSERT INTO user_totp_dek_links (user_id, dek_id)
-VALUES
-  ('11111111-1111-4111-8111-111111111111', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd');
+-- -- Link DEK to TOTP
+-- INSERT INTO user_totp_dek_links (user_id, dek_id)
+-- VALUES
+--   ('11111111-1111-4111-8111-111111111111', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd');
 
 -- Insert CMK
 INSERT INTO cmks (id, user_id, version, key_material, active, created_at)

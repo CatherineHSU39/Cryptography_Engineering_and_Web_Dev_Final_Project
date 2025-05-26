@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR NOT NULL,
     encrypted_totp_secret VARCHAR,
     role VARCHAR NOT NULL CHECK (role IN ('USER', 'ADMIN', 'AUDITOR')),
+    fetch_new_at TIMESTAMP NOT NULL DEFAULT now(),
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
@@ -29,42 +30,20 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE TABLE IF NOT EXISTS group_members (
     group_id UUID NOT NULL REFERENCES groups(id),
     user_id UUID NOT NULL REFERENCES users(id),
+    read_at TIMESTAMP NOT NULL DEFAULT now(),
     joined_at TIMESTAMP NOT NULL DEFAULT now(),
     PRIMARY KEY (group_id, user_id)
-);
-
--- MessageRecipient Table
-CREATE TABLE IF NOT EXISTS message_recipients (
-    message_id UUID NOT NULL REFERENCES messages(id),
-    user_id UUID NOT NULL REFERENCES users(id),
-    group_id UUID NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'NEW',
-    sent_at TIMESTAMP NOT NULL DEFAULT now(),
-    PRIMARY KEY (message_id, user_id)
 );
 
 -- EncryptedDEKs Table
 CREATE TABLE IF NOT EXISTS encrypted_deks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_id UUID REFERENCES users(id),
+    entity_id UUID NOT NULL,
     cmk_version INTEGER NOT NULL CHECK (cmk_version >= 1),
     encrypted_dek BYTEA NOT NULL,
     purpose VARCHAR CHECK (purpose IN ('message', 'totp')),
     created_at TIMESTAMP NOT NULL DEFAULT now()
-);
-
--- -- MessageDEKLinks Table
--- CREATE TABLE IF NOT EXISTS message_dek_links (
---     message_id UUID NOT NULL REFERENCES messages(id),
---     recipient_id UUID NOT NULL REFERENCES users(id),
---     dek_id UUID NOT NULL REFERENCES encrypted_deks(id),
---     PRIMARY KEY (message_id, recipient_id)
--- );
-
--- UserTOTPDEKLinks Table
-CREATE TABLE IF NOT EXISTS user_totp_dek_links (
-    user_id UUID PRIMARY KEY REFERENCES users(id),
-    dek_id UUID NOT NULL UNIQUE REFERENCES encrypted_deks(id)
 );
 
 -- CMKs Table
