@@ -6,13 +6,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.nycu.ce.ciphergame.backend.dto.user.UserResponse;
-import com.nycu.ce.ciphergame.backend.dto.user.UserRequest;
-import com.nycu.ce.ciphergame.backend.mapper.UserMapper;
 import com.nycu.ce.ciphergame.backend.repository.UserRepository;
-
 import com.nycu.ce.ciphergame.backend.entity.User;
+import com.nycu.ce.ciphergame.backend.entity.id.UserId;
 
 @Service
 public class UserService {
@@ -20,30 +16,29 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private UserMapper userMapper;
+    public User getUserById(UserId userId) {
+        User user = userRepository.findById(userId.toUUID())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-    public UserResponse getUserById(UUID id) {
-        return userRepository.findById(id)
-                .map(userMapper::toDTO)
-                .orElse(null);
+        return user;
     }
 
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(userMapper::toDTO)
-                .collect(Collectors.toList());
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
-    public UserResponse updateUser(UUID id, UserRequest dto) {
-        User user = userRepository.findById(id).orElse(null);
+    public List<User> getAllUsersById(List<UserId> userIds) {
+        List<UUID> ids = userIds.stream().map(id -> id.toUUID()).collect(Collectors.toList());
+        return userRepository.findAllById(ids);
+    }
 
-        if (dto.getUsername() != null) {
-            user.setUsername(dto.getUsername());
-        }
+    public User updateUser(UserId userId, String username) {
+        User user = userRepository.findById(userId.toUUID())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setUsername(username);
 
         userRepository.save(user);
-        return userMapper.toDTO(user);
+        return user;
     }
 }

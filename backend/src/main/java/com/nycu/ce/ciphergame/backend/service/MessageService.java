@@ -1,21 +1,19 @@
 package com.nycu.ce.ciphergame.backend.service;
 
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.nycu.ce.ciphergame.backend.dto.message.MessageRequest;
-import com.nycu.ce.ciphergame.backend.dto.message.MessageResponse;
 import com.nycu.ce.ciphergame.backend.entity.Group;
 import com.nycu.ce.ciphergame.backend.entity.Message;
 import com.nycu.ce.ciphergame.backend.entity.User;
-import com.nycu.ce.ciphergame.backend.mapper.MessageMapper;
-import com.nycu.ce.ciphergame.backend.repository.GroupRepository;
+import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
+import com.nycu.ce.ciphergame.backend.entity.id.MessageId;
+import com.nycu.ce.ciphergame.backend.entity.id.UserId;
 import com.nycu.ce.ciphergame.backend.repository.MessageRepository;
-import com.nycu.ce.ciphergame.backend.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -27,63 +25,57 @@ public class MessageService {
     private MessageRepository messageRepository;
 
     @Autowired
-    private GroupRepository groupRepository;
+    private GroupService groupService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
-    private MessageMapper messageMapper;
+    private MemberService memberService;
 
-    public MessageResponse getMessageById(UUID messageId) {
-        return messageRepository.findById(messageId)
-                .map(messageMapper::toDTO)
-                .orElse(null);
+    @Autowired
+    private RecipientService recipientService;
+
+    public Message getMessageById(MessageId messageId) {
+        return messageRepository.findById(messageId.toUUID())
+                .orElseThrow(() -> new RuntimeException("Message not found"));
     }
 
-    public List<MessageResponse> getAllMessages(UUID groupId) {
-        return messageRepository.findAllByGroupId(groupId)
-                .stream()
-                .map(messageMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<Message> getAllMessages(Pageable pageable) {
+        return messageRepository.findAll(pageable);
     }
 
-    @Transactional
-    public MessageResponse createMessage(UUID senderId, UUID groupId, MessageRequest dto) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
-        User sender = userRepository.findById(senderId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Message newMessage = new Message();
-        newMessage.setEncryptedMessage(dto.getEncryptedMessage());
-        newMessage.setSender(sender);
-        newMessage.setGroup(group);
+    public Page<Message> getMessagesByGroupId(
+            GroupId groupId,
+            Pageable pageable
+    ) {
+        return messageRepository.findAllByGroupId(groupId.toUUID(), pageable);
+    }
+
+    public Message createMessage(UserId senderId, GroupId groupId, String content) {
+        Group group = groupService.getGroupById(groupId);
+        User sender = userService.getUserById(senderId);
+        Message newMessage = new Message(sender, group, content);
 
         messageRepository.save(newMessage);
-        return messageMapper.toDTO(newMessage);
+
+        List<User> reciviers = memberService.getAllUsersByGroupId(groupId);
+        recipientService.addAllRecipients(newMessage, reciviers, groupId);
+        return newMessage;
     }
 
-    public MessageResponse updateMessage(UUID messageId, MessageRequest dto) {
-        Message targetMessage = messageRepository.findById(messageId).orElse(null);
+    public Message updateMessage(MessageId messageId, String content) {
+        Message targetMessage = messageRepository.findById(messageId.toUUID())
+                .orElseThrow(() -> new RuntimeException("Message not found"));
 
-        if (dto.getEncryptedMessage() != null) {
-            targetMessage.setEncryptedMessage(dto.getEncryptedMessage());
-        }
+        targetMessage.setContent(content);
         messageRepository.save(targetMessage);
-        return messageMapper.toDTO(targetMessage);
+        return targetMessage;
 
     }
 
-    public Void deleteMessage(UUID messageId) {
-        messageRepository.deleteById(messageId);
+    public Void deleteMessage(MessageId messageId) {
+        messageRepository.deleteById(messageId.toUUID());
         return null;
-    }
-
-    public boolean isMessageInGroup(UUID messageId, UUID groupId) {
-        Message message = messageRepository.findById(messageId).orElse(null);
-        if (message == null) {
-            return false;
-        }
-        return message.getGroup().getId().equals(groupId);
     }
 }

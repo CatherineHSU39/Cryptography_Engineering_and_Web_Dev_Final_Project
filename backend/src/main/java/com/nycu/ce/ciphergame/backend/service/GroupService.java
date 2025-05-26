@@ -1,26 +1,13 @@
 package com.nycu.ce.ciphergame.backend.service;
 
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nycu.ce.ciphergame.backend.dto.group.CUGroupRequest;
-import com.nycu.ce.ciphergame.backend.dto.group.CUGroupResponse;
-import com.nycu.ce.ciphergame.backend.dto.group.GetAllGroupResponse;
-import com.nycu.ce.ciphergame.backend.dto.group.GetGroupResponse;
 import com.nycu.ce.ciphergame.backend.entity.Group;
-import com.nycu.ce.ciphergame.backend.entity.GroupMember;
-import com.nycu.ce.ciphergame.backend.entity.GroupMemberId;
-import com.nycu.ce.ciphergame.backend.entity.User;
-import com.nycu.ce.ciphergame.backend.mapper.GroupMapper;
-import com.nycu.ce.ciphergame.backend.mapper.GroupMemberMapper;
-import com.nycu.ce.ciphergame.backend.repository.GroupMemberRepository;
+import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
 import com.nycu.ce.ciphergame.backend.repository.GroupRepository;
-import com.nycu.ce.ciphergame.backend.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -31,88 +18,35 @@ public class GroupService {
     @Autowired
     private GroupRepository groupRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    public Group getGroupById(GroupId groupId) {
 
-    @Autowired
-    private GroupMemberRepository groupMemberRepository;
+        Group group = groupRepository.findById(groupId.toUUID())
+                .orElseThrow(() -> new RuntimeException("Group not found"));
 
-    @Autowired
-    private GroupMapper groupMapper;
-
-    @Autowired
-    private GroupMemberMapper groupMemberMapper;
-
-    @Autowired
-    private GroupMemberService groupMemberService;
-
-    public GetGroupResponse getGroupById(UUID userId, UUID groupId) {
-
-        Group group = groupRepository.findById(groupId)
-                .orElse(null);
-
-        return groupMapper.toDTOGet(group);
+        return group;
     }
 
-    @Transactional
-    public List<GetAllGroupResponse> getAllGroups(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return user.getGroup().stream()
-                .map(groupMemberMapper::toDTOGetAll)
-                .collect(Collectors.toList());
+    public List<Group> getAllGroups() {
+        return groupRepository.findAll();
     }
 
-    @Transactional
-    public CUGroupResponse createGroup(UUID creatorId, CUGroupRequest groupRequest) {
-        // Step 1: Save group
-        Group group = Group.builder()
-                .name(groupRequest.getName())
-                .build();
-        Group newGroup = groupRepository.save(group); // Group now has ID
-
-        // Step 2: Add members to group
-        groupRequest.getMemberIds().add(creatorId);
-        List<User> users = userRepository.findAllById(groupRequest.getMemberIds());
-        groupMemberService.createAllMemberByUser(newGroup, users);
-        return groupMapper.toDTOCreateUpdate(newGroup);
+    public Group createGroup(String name) {
+        Group group = new Group(name);
+        groupRepository.save(group); // Group now has ID
+        return group;
     }
 
-    public CUGroupResponse updateGroup(UUID groupId, CUGroupRequest groupRequest) {
-        Group group = groupRepository.findById(groupId)
-                .orElse(null);
+    public Group updateGroup(GroupId groupId, String name) {
+        Group group = groupRepository.findById(groupId.toUUID())
+                .orElseThrow(() -> new RuntimeException("Group not found"));
 
-        List<UUID> userIds = groupRequest.getMemberIds().stream().distinct().toList();
-        List<User> users = userRepository.findAllById(userIds);
-        Set<GroupMember> targetMembers = users.stream()
-                .map(user -> new GroupMember(user, group))
-                .collect(Collectors.toSet());
+        group.setName(name);
 
-        if (groupRequest.getName() != null) {
-            group.setName(groupRequest.getName());
-        }
-
-        Set<GroupMember> oldMembers = group.getMembers();
-        Set<GroupMember> newMembers = groupMemberService
-                .getAdditionalMember(targetMembers, oldMembers);
-        Set<GroupMember> removeMembers = groupMemberService
-                .getAdditionalMember(oldMembers, newMembers);
-
-        group.addAllMember(newMembers);
-        group.removeAllMember(removeMembers);
-
-        Group updatedGroup = groupRepository.save(group); // cascades GroupMember
-        return groupMapper.toDTOCreateUpdate(updatedGroup);
+        groupRepository.save(group);
+        return group;
     }
 
-    public void deleteGroup(UUID id) {
-        groupRepository.deleteById(id);
-    }
-
-    public boolean isUserInGroup(UUID userId, UUID groupId) {
-        return groupMemberRepository.existsById(GroupMemberId.builder()
-                .userId(userId)
-                .groupId(groupId)
-                .build());
+    public void deleteGroup(GroupId id) {
+        groupRepository.deleteById(id.toUUID());
     }
 }

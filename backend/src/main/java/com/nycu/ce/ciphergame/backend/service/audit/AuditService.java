@@ -1,7 +1,6 @@
 package com.nycu.ce.ciphergame.backend.service.audit;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +9,9 @@ import com.nycu.ce.ciphergame.backend.entity.Audit;
 import com.nycu.ce.ciphergame.backend.entity.Group;
 import com.nycu.ce.ciphergame.backend.entity.Message;
 import com.nycu.ce.ciphergame.backend.entity.User;
+import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
+import com.nycu.ce.ciphergame.backend.entity.id.MessageId;
+import com.nycu.ce.ciphergame.backend.entity.id.UserId;
 import com.nycu.ce.ciphergame.backend.repository.AuditRepository;
 import com.nycu.ce.ciphergame.backend.util.CRUDAction;
 import com.nycu.ce.ciphergame.backend.util.EntityType;
@@ -25,7 +27,7 @@ public class AuditService {
     }
 
     public void insertAudit(
-            UUID userId,
+            UserId userId,
             CRUDAction action,
             User userBefore,
             User userAfter
@@ -34,14 +36,14 @@ public class AuditService {
             return;
         }
 
-        UUID entityId = userId;
+        UserId entityId = userId;
 
         if (!userBefore.getUsername().equals(userAfter.getUsername())) {
             auditRepository.save(Audit.builder()
-                    .userId(userId)
+                    .userId(userId.toUUID())
                     .action(action.name())
                     .entityType(EntityType.USER.name())
-                    .entityId(entityId)
+                    .entityId(entityId.toUUID())
                     .columnName("username")
                     .beforeValue(userBefore.getUsername())
                     .afterValue(userAfter.getUsername())
@@ -50,9 +52,9 @@ public class AuditService {
     }
 
     public void insertAudit(
-            UUID userId,
+            UserId userId,
             CRUDAction action,
-            UUID groupId,
+            GroupId groupId,
             Group groupBefore,
             Group groupAfter
     ) {
@@ -60,14 +62,14 @@ public class AuditService {
             return;
         }
 
-        UUID entityId = groupId;
+        GroupId entityId = groupId;
 
         if (!groupBefore.getName().equals(groupAfter.getName())) {
             auditRepository.save(Audit.builder()
-                    .userId(userId)
+                    .userId(userId.toUUID())
                     .action(action.name())
                     .entityType(EntityType.GROUP.name())
-                    .entityId(entityId)
+                    .entityId(entityId.toUUID())
                     .columnName("name")
                     .beforeValue(groupBefore.getName())
                     .afterValue(groupAfter.getName())
@@ -76,20 +78,20 @@ public class AuditService {
     }
 
     public void insertAudit(
-            UUID userId,
+            UserId userId,
             CRUDAction action,
-            UUID groupId,
-            UUID memberIdBefore,
-            UUID memberIdAfter
+            GroupId groupId,
+            UserId memberIdBefore,
+            UserId memberIdAfter
     ) {
-        UUID entityId = groupId;
+        GroupId entityId = groupId;
 
         if (!memberIdBefore.equals(memberIdAfter)) {
             auditRepository.save(Audit.builder()
-                    .userId(userId)
+                    .userId(userId.toUUID())
                     .action(action.name())
                     .entityType(EntityType.GROUP.name())
-                    .entityId(entityId)
+                    .entityId(entityId.toUUID())
                     .columnName("member")
                     .beforeValue(memberIdBefore.toString())
                     .afterValue(memberIdAfter.toString())
@@ -98,9 +100,9 @@ public class AuditService {
     }
 
     public void insertAudit(
-            UUID userId,
+            UserId userId,
             CRUDAction action,
-            UUID messageId,
+            MessageId messageId,
             Message messageBefore,
             Message messageAfter
     ) {
@@ -108,17 +110,17 @@ public class AuditService {
             return;
         }
 
-        UUID entityId = messageId;
+        MessageId entityId = messageId;
 
-        if (!messageBefore.getEncryptedMessage().equals(messageAfter.getEncryptedMessage())) {
+        if (!messageBefore.getContent().equals(messageAfter.getContent())) {
             auditRepository.save(Audit.builder()
-                    .userId(userId)
+                    .userId(userId.toUUID())
                     .action(action.name())
                     .entityType(EntityType.MESSAGE.name())
-                    .entityId(entityId)
+                    .entityId(entityId.toUUID())
                     .columnName("encrypted_message")
-                    .beforeValue(messageBefore.getEncryptedMessage())
-                    .afterValue(messageAfter.getEncryptedMessage())
+                    .beforeValue(messageBefore.getContent())
+                    .afterValue(messageAfter.getContent())
                     .build());
         }
     }
