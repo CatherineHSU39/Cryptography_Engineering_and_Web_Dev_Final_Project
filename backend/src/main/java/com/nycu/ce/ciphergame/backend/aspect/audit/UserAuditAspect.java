@@ -1,7 +1,5 @@
 package com.nycu.ce.ciphergame.backend.aspect.audit;
 
-import java.util.UUID;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -12,8 +10,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import com.nycu.ce.ciphergame.backend.dao.UserDAO;
-import com.nycu.ce.ciphergame.backend.dto.group.CUGroupResponse;
+import com.nycu.ce.ciphergame.backend.dto.group.GroupResponse;
 import com.nycu.ce.ciphergame.backend.entity.User;
+import com.nycu.ce.ciphergame.backend.entity.id.UserId;
 import com.nycu.ce.ciphergame.backend.service.audit.AuditService;
 import com.nycu.ce.ciphergame.backend.util.CRUDAction;
 
@@ -34,11 +33,11 @@ public class UserAuditAspect {
     @Around("userUpdateMethods()")
     public Object aroundUpdateUser(ProceedingJoinPoint joinPoint) throws Throwable {
         Jwt jwt = (Jwt) joinPoint.getArgs()[0];
-        UUID userId = UUID.fromString(jwt.getSubject());
+        UserId userId = UserId.fromString(jwt.getSubject());
         User userBefore = userDAO.getDetachedUserById(userId);
 
         Object result = joinPoint.proceed();
-        ResponseEntity<CUGroupResponse> response = (ResponseEntity<CUGroupResponse>) result;
+        ResponseEntity<GroupResponse> response = (ResponseEntity<GroupResponse>) result;
 
         if (!response.getStatusCode().is2xxSuccessful()) {
             return result;
