@@ -20,14 +20,13 @@ import com.nycu.ce.ciphergame.auth.dto.UserSigninResponse;
 import com.nycu.ce.ciphergame.auth.security.CustomUserDetails;
 import com.nycu.ce.ciphergame.auth.service.AuthService;
 import com.nycu.ce.ciphergame.auth.service.CustomUserDetailsService;
-import com.nycu.ce.ciphergame.auth.service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/identity")
 public class AuthController {
 
-    @Autowired
-    UserService userService;
     @Autowired
     CustomUserDetailsService userDetailsService;
     @Autowired
@@ -36,7 +35,9 @@ public class AuthController {
     AuthenticationManager authenticationManager;
 
     @PostMapping("/token")
-    public ResponseEntity<?> authenticateUser(@RequestBody UserSigninRequest user) {
+    public ResponseEntity<?> authenticateUser(
+            @Valid @RequestBody UserSigninRequest user
+    ) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         user.getUsername(),
@@ -47,7 +48,10 @@ public class AuthController {
     }
 
     @PostMapping("/2fa-verification")
-    public ResponseEntity<?> verify2FA(@AuthenticationPrincipal Jwt jwt, @RequestBody TwoFaRequest req) {
+    public ResponseEntity<?> verify2FA(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody TwoFaRequest req
+    ) {
         if ((boolean) jwt.getClaim("2fa_verified")) {
             return ResponseEntity.status(400).body("2FA already verified");
         }
