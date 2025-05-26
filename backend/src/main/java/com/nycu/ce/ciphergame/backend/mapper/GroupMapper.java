@@ -1,48 +1,31 @@
 package com.nycu.ce.ciphergame.backend.mapper;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
-import com.nycu.ce.ciphergame.backend.dto.group.CUGroupRequest;
-import com.nycu.ce.ciphergame.backend.dto.group.CUGroupResponse;
-import com.nycu.ce.ciphergame.backend.dto.group.GetGroupResponse;
+import com.nycu.ce.ciphergame.backend.dto.group.GroupRequest;
+import com.nycu.ce.ciphergame.backend.dto.group.GroupResponse;
 import com.nycu.ce.ciphergame.backend.entity.Group;
 
 @Component
 public class GroupMapper {
 
-    @Autowired
-    private MessageMapper messageMapper;
+    public Group toEntity(GroupRequest dto) {
+        return new Group(dto.getName());
+    }
 
-    @Autowired
-    private GroupMemberMapper groupMemberMapper;
-
-    public Group toEntity(CUGroupRequest dto) {
-        return Group.builder()
-                .name(dto.getName())
+    public GroupResponse toDTO(Group entity) {
+        return GroupResponse.builder()
+                .id(entity.getId())
+                .name(entity.getName())
                 .build();
     }
 
-    public CUGroupResponse toDTOCreateUpdate(Group entity) {
-        return CUGroupResponse.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .members(entity.getMembers().stream()
-                        .map(groupMemberMapper::toDTO)
-                        .toList())
-                .build();
-    }
-
-    public GetGroupResponse toDTOGet(Group entity) {
-        return GetGroupResponse.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .members(entity.getMembers().stream()
-                        .map(groupMemberMapper::toDTO)
-                        .toList())
-                .messages(entity.getMessages().stream()
-                        .map(messageMapper::toDTO)
-                        .toList())
-                .build();
+    public List<GroupResponse> toDTO(List<Group> entity) {
+        return entity.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 }

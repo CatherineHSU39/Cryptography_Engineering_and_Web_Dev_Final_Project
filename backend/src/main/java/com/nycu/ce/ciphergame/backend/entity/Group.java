@@ -1,10 +1,13 @@
 package com.nycu.ce.ciphergame.backend.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -16,39 +19,32 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
-@Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 @Table(name = "groups")
 public class Group {
 
-    @Id
-    @GeneratedValue
     @EqualsAndHashCode.Include
     @ToString.Include
+    @Id
+    @GeneratedValue
     private UUID id;
 
-    @Builder.Default
     @Column(name = "name", nullable = false)
     private String name = "";
 
-    @Builder.Default
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<GroupMember> members = new HashSet<>();
+    private Set<Member> members = new HashSet<>();
 
-    @Builder.Default
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Message> messages = new HashSet<>();
+    private List<Message> messages = new ArrayList<>();
 
     @EqualsAndHashCode.Include
     @ToString.Include
@@ -60,16 +56,19 @@ public class Group {
         this.createdAt = LocalDateTime.now();
     }
 
+    public Group() {
+    }
+
     public Group(String name) {
         this.name = name;
     }
 
-    public Group addAllMember(Set<GroupMember> newMembers) {
+    public Group addAllMember(Set<Member> newMembers) {
         this.getMembers().addAll(newMembers);
         return this;
     }
 
-    public Group removeAllMember(Set<GroupMember> removeMembers) {
+    public Group removeAllMember(Set<Member> removeMembers) {
         this.getMembers().removeAll(removeMembers);
         return this;
     }

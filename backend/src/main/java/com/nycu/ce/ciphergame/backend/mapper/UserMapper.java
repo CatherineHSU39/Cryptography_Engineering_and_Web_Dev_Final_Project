@@ -1,5 +1,8 @@
 package com.nycu.ce.ciphergame.backend.mapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
 import com.nycu.ce.ciphergame.backend.dto.user.UserRequest;
@@ -16,9 +19,11 @@ public class UserMapper {
                 .build();
     }
 
+    public List<UserResponse> toDTO(List<User> user) {
+        return user.stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
     public User toEntity(UserRequest userRequestDTO) {
-        return User.builder()
-                .username(userRequestDTO.getUsername())
-                .build();
+        return new User(userRequestDTO.getUsername());
     }
 }

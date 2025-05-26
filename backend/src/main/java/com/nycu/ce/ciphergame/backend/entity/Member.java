@@ -2,6 +2,10 @@ package com.nycu.ce.ciphergame.backend.entity;
 
 import java.time.LocalDateTime;
 
+import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
+import com.nycu.ce.ciphergame.backend.entity.id.MemberId;
+import com.nycu.ce.ciphergame.backend.entity.id.UserId;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -20,12 +24,12 @@ import lombok.ToString;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 @Table(name = "group_members")
-public class GroupMember {
+public class Member {
 
     @EqualsAndHashCode.Include
     @ToString.Include
     @EmbeddedId
-    private GroupMemberId id;
+    private MemberId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
@@ -51,15 +55,15 @@ public class GroupMember {
         this.joinedAt = LocalDateTime.now();
     }
 
-    protected GroupMember() {
+    protected Member() {
     }
 
-    public GroupMember(User user, Group group) {
+    public Member(User user, Group group) {
         if (user.getId() == null || group.getId() == null) {
             throw new IllegalArgumentException("User ID or Group ID is null");
         }
         this.user = user;
         this.group = group;
-        this.id = new GroupMemberId(user.getId(), group.getId());
+        this.id = new MemberId(user.getId(), group.getId());
     }
 }

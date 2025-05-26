@@ -9,4 +9,5 @@ import com.nycu.ce.ciphergame.backend.entity.Group;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, UUID> {
+
 }

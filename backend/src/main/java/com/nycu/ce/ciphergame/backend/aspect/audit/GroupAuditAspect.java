@@ -1,7 +1,5 @@
 package com.nycu.ce.ciphergame.backend.aspect.audit;
 
-import java.util.UUID;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -14,8 +12,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import com.nycu.ce.ciphergame.backend.dao.GroupDAO;
-import com.nycu.ce.ciphergame.backend.dto.group.CUGroupResponse;
+import com.nycu.ce.ciphergame.backend.dto.group.GroupResponse;
 import com.nycu.ce.ciphergame.backend.entity.Group;
+import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
+import com.nycu.ce.ciphergame.backend.entity.id.UserId;
 import com.nycu.ce.ciphergame.backend.service.audit.AuditService;
 import com.nycu.ce.ciphergame.backend.util.CRUDAction;
 
@@ -36,21 +36,19 @@ public class GroupAuditAspect {
     @AfterReturning(pointcut = "groupCreateMethods()", returning = "result")
     public void aroundCreateGroup(JoinPoint joinPoint, Object result) {
         Jwt jwt = (Jwt) joinPoint.getArgs()[0];
-        UUID userId = UUID.fromString(jwt.getSubject());
-        ResponseEntity<CUGroupResponse> response = (ResponseEntity<CUGroupResponse>) result;
+        UserId userId = UserId.fromString(jwt.getSubject());
+        ResponseEntity<GroupResponse> response = (ResponseEntity<GroupResponse>) result;
 
         if (!response.getStatusCode().is2xxSuccessful()) {
             return;
         }
 
-        CUGroupResponse responseBody = response.getBody();
-        UUID groupId = responseBody.getId();
+        GroupResponse responseBody = response.getBody();
+        GroupId groupId = GroupId.fromUUID(responseBody.getId());
         String groupName = responseBody.getName();
 
-        Group newGroup = Group.builder()
-                .name(groupName)
-                .build();
-        Group dummyGroup = Group.builder().build();
+        Group newGroup = new Group(groupName);
+        Group dummyGroup = new Group();
         System.out.println(">>> AOP: groupBefore = null");
         System.out.println(">>> AOP: groupAfter = " + groupName);
         auditService.insertAudit(userId, CRUDAction.CREATE, groupId, dummyGroup, newGroup);
@@ -64,12 +62,12 @@ public class GroupAuditAspect {
     @Around("groupUpdateMethods()")
     public Object aroundUpdateGroup(ProceedingJoinPoint joinPoint) throws Throwable {
         Jwt jwt = (Jwt) joinPoint.getArgs()[0];
-        UUID userId = UUID.fromString(jwt.getSubject());
-        UUID groupId = (UUID) joinPoint.getArgs()[1];
+        UserId userId = UserId.fromString(jwt.getSubject());
+        GroupId groupId = (GroupId) joinPoint.getArgs()[1];
         Group groupBefore = groupDAO.getDetachedGroupById(groupId);
 
         Object result = joinPoint.proceed();
-        ResponseEntity<CUGroupResponse> response = (ResponseEntity<CUGroupResponse>) result;
+        ResponseEntity<GroupResponse> response = (ResponseEntity<GroupResponse>) result;
 
         if (!response.getStatusCode().is2xxSuccessful()) {
             return result;
@@ -90,18 +88,18 @@ public class GroupAuditAspect {
     @Around("groupDeleteMethods()")
     public Object aroundDeleteGroup(ProceedingJoinPoint joinPoint) throws Throwable {
         Jwt jwt = (Jwt) joinPoint.getArgs()[0];
-        UUID userId = UUID.fromString(jwt.getSubject());
-        UUID groupId = (UUID) joinPoint.getArgs()[1];
+        UserId userId = UserId.fromString(jwt.getSubject());
+        GroupId groupId = (GroupId) joinPoint.getArgs()[1];
         Group groupBefore = groupDAO.getDetachedGroupById(groupId);
 
         Object result = joinPoint.proceed();
-        ResponseEntity<CUGroupResponse> response = (ResponseEntity<CUGroupResponse>) result;
+        ResponseEntity<GroupResponse> response = (ResponseEntity<GroupResponse>) result;
 
         if (!response.getStatusCode().is2xxSuccessful()) {
             return result;
         }
 
-        Group dummyGroup = Group.builder().build();
+        Group dummyGroup = new Group();
         System.out.println(">>> AOP: groupBefore = " + groupBefore.getName());
         System.out.println(">>> AOP: groupAfter = " + dummyGroup.getName());
         auditService.insertAudit(userId, CRUDAction.DELETE, groupId, groupBefore, dummyGroup);
