@@ -36,10 +36,15 @@ VALUES
   ('dddddddd-dddd-4ddd-8ddd-dddddddddddd', '11111111-1111-4111-8111-111111111111', 1,
    decode('beadfeed', 'hex'), 'message', now());
 
--- Link DEK to Message
-INSERT INTO message_dek_links (message_id, recipient_id, dek_id)
+-- -- Link DEK to Message
+-- INSERT INTO message_dek_links (message_id, recipient_id, dek_id)
+-- VALUES
+--   ('abababab-abab-4bab-8bab-abababababab', '22222222-2222-4222-8222-222222222222', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd');
+
+INSERT INTO message_recipients (message_id, user_id, group_id)
 VALUES
-  ('abababab-abab-4bab-8bab-abababababab', '22222222-2222-4222-8222-222222222222', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd');
+  ('abababab-abab-4bab-8bab-abababababab', '22222222-2222-4222-8222-222222222222', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
+
 
 -- Link DEK to TOTP
 INSERT INTO user_totp_dek_links (user_id, dek_id)

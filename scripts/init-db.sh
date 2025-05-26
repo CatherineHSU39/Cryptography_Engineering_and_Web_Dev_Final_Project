@@ -59,7 +59,7 @@ FROM users;
 
 -- Grant precise permissions
 -- Backend
-GRANT SELECT, INSERT, UPDATE, DELETE ON messages, groups, group_members, message_dek_links TO ${BACKEND_USER};
+GRANT SELECT, INSERT, UPDATE, DELETE ON messages, groups, group_members, message_recipients TO ${BACKEND_USER};
 
 -- Grant SELECT on the view to backend only
 GRANT SELECT, UPDATE ON users_backend_view TO ${BACKEND_USER};

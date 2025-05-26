@@ -33,6 +33,16 @@ CREATE TABLE IF NOT EXISTS group_members (
     PRIMARY KEY (group_id, user_id)
 );
 
+-- MessageRecipient Table
+CREATE TABLE IF NOT EXISTS message_recipients (
+    message_id UUID NOT NULL REFERENCES messages(id),
+    user_id UUID NOT NULL REFERENCES users(id),
+    group_id UUID NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'NEW',
+    sent_at TIMESTAMP NOT NULL DEFAULT now(),
+    PRIMARY KEY (message_id, user_id)
+);
+
 -- EncryptedDEKs Table
 CREATE TABLE IF NOT EXISTS encrypted_deks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -43,13 +53,13 @@ CREATE TABLE IF NOT EXISTS encrypted_deks (
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
--- MessageDEKLinks Table
-CREATE TABLE IF NOT EXISTS message_dek_links (
-    message_id UUID NOT NULL REFERENCES messages(id),
-    recipient_id UUID NOT NULL REFERENCES users(id),
-    dek_id UUID NOT NULL REFERENCES encrypted_deks(id),
-    PRIMARY KEY (message_id, recipient_id)
-);
+-- -- MessageDEKLinks Table
+-- CREATE TABLE IF NOT EXISTS message_dek_links (
+--     message_id UUID NOT NULL REFERENCES messages(id),
+--     recipient_id UUID NOT NULL REFERENCES users(id),
+--     dek_id UUID NOT NULL REFERENCES encrypted_deks(id),
+--     PRIMARY KEY (message_id, recipient_id)
+-- );
 
 -- UserTOTPDEKLinks Table
 CREATE TABLE IF NOT EXISTS user_totp_dek_links (
