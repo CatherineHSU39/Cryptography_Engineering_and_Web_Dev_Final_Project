@@ -31,7 +31,7 @@ public class ExecutionLogAspect {
             if (arg instanceof com.nycu.ce.ciphergame.backend.entity.Group group) {
                 System.out.println(">>> AOP: Group ID before persist = " + group.getId());
             }
-            if (arg instanceof com.nycu.ce.ciphergame.backend.entity.GroupMember gm) {
+            if (arg instanceof com.nycu.ce.ciphergame.backend.entity.Member gm) {
                 System.out.println(">>> AOP: GroupMember ID = " + gm.getId());
             }
         }
