@@ -1,7 +1,5 @@
 package com.nycu.ce.ciphergame.backend.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,12 +28,6 @@ public class MessageService {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private MemberService memberService;
-
-    @Autowired
-    private RecipientService recipientService;
-
     public Message getMessageById(MessageId messageId) {
         return messageRepository.findById(messageId.toUUID())
                 .orElseThrow(() -> new RuntimeException("Message not found"));
@@ -58,9 +50,6 @@ public class MessageService {
         Message newMessage = new Message(sender, group, content);
 
         messageRepository.save(newMessage);
-
-        List<User> reciviers = memberService.getAllUsersByGroupId(groupId);
-        recipientService.addAllRecipients(newMessage, reciviers, groupId);
         return newMessage;
     }
 

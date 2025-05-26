@@ -2,7 +2,7 @@ package com.nycu.ce.ciphergame.backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -36,8 +36,10 @@ public class MessageController {
     public ResponseEntity<Page<MessageResponse>> getAllMessages(
             @Valid @ModelAttribute MessageQuery messageQuery
     ) {
-        Pageable pageable = messageQuery.toPageable();
-        Page<Message> message = messageService.getAllMessages(pageable);
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Page<Message> message = messageService.getAllMessages(
+                messageQuery.toPageable(sort)
+        );
         return ResponseEntity.ok(messageMapper.toDTO(message));
     }
 

@@ -1,23 +1,24 @@
 package com.nycu.ce.ciphergame.backend.service.me;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.nycu.ce.ciphergame.backend.entity.Message;
-import com.nycu.ce.ciphergame.backend.entity.Recipient;
+import com.nycu.ce.ciphergame.backend.entity.User;
 import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
 import com.nycu.ce.ciphergame.backend.entity.id.MessageId;
-import com.nycu.ce.ciphergame.backend.entity.id.RecipientId;
 import com.nycu.ce.ciphergame.backend.entity.id.UserId;
 import com.nycu.ce.ciphergame.backend.repository.MessageRepository;
 import com.nycu.ce.ciphergame.backend.service.MemberService;
 import com.nycu.ce.ciphergame.backend.service.MessageService;
-import com.nycu.ce.ciphergame.backend.service.RecipientService;
-import com.nycu.ce.ciphergame.backend.util.MessageStatus;
+import com.nycu.ce.ciphergame.backend.service.UserService;
 
 import jakarta.transaction.Transactional;
 
@@ -29,51 +30,37 @@ public class MyMessageService {
     private MessageRepository messageRepository;
 
     @Autowired
-    private RecipientService recipientService;
-
-    @Autowired
     private MessageService messageService;
 
     @Autowired
     private MemberService memberService;
 
-    public List<Message> getMyNewMessages(
-            UserId userId
-    ) {
-        List<Recipient> recipients = recipientService.getAllRecipients(
-                userId,
-                MessageStatus.NEW
+    @Autowired
+    private UserService userService;
+
+    public Page<Message> getMyNewMessages(UserId userId, Pageable pageable) {
+        User user = userService.getUserById(userId);
+        LocalDateTime fetchNewAt = user.getFetchNewAt();
+
+        List<UUID> groupIds = user.getMemberships().stream()
+                .map(m -> m.getId().getGroupId())
+                .toList();
+
+        if (groupIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        Page<Message> page = messageRepository.findAllSinceCreatedAtGroupIdIn(
+                fetchNewAt,
+                groupIds,
+                pageable
         );
 
-        recipientService.updateRecipients(
-                MessageStatus.UNREAD,
-                recipients
-        );
+        page.getContent().stream().findFirst()
+                .map(Message::getCreatedAt)
+                .ifPresent(user::setFetchNewAt);
 
-        List<UUID> messageIds = recipients.stream()
-                .map(Recipient::getId)
-                .map(RecipientId::getMessageId)
-                .collect(Collectors.toList());
-
-        return messageRepository.findAllById(messageIds);
-    }
-
-    public void markMyReadMessages(
-            UserId userId,
-            List<GroupId> groupIds
-    ) {
-
-        List<Recipient> recipients = recipientService.getAllRecipients(
-                userId,
-                MessageStatus.UNREAD
-        );
-        List<Recipient> targetRecipients = recipients.stream()
-                .filter(recipient
-                        -> groupIds.contains(GroupId.fromUUID(recipient.getGroupId())))
-                .collect(Collectors.toList());
-
-        recipientService.updateRecipients(MessageStatus.READ, targetRecipients);
-
+        return page;
     }
 
     public List<Message> createMyMessage(

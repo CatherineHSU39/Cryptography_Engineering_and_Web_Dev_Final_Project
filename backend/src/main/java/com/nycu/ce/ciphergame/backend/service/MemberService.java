@@ -38,32 +38,37 @@ public class MemberService {
     public void addAllMembers(GroupId groupId, List<UserId> userIds) {
         Group group = groupService.getGroupById(groupId);
         List<User> users = userService.getAllUsersById(userIds);
+        Set<Member> newMembers = users.stream()
+                .map(user -> new Member(user, group))
+                .collect(Collectors.toSet());
 
-        this.addAllMembers(group, users);
+        this.addAllMembers(group.getMembers(), newMembers);
     }
 
     public void removeAllMembers(GroupId groupId, List<UserId> userIds) {
         Group group = groupService.getGroupById(groupId);
-        List<User> users = userService.getAllUsersById(userIds);
+        Set<Member> targetMembers = this.getAllMembers(groupId, userIds);
 
-        this.removeAllMembers(group, users);
+        this.removeAllMembers(group.getMembers(), targetMembers);
     }
 
-    public void addAllMembers(Group group, List<User> users) {
-        Set<Member> oldMembers = group.getMembers();
+    public void addAllMembers(
+            Set<Member> oldMembers,
+            Set<Member> targetMembers
+    ) {
 
-        Set<Member> newMembers = users.stream()
-                .map(user -> new Member(user, group))
+        Set<Member> newMembers = targetMembers.stream()
                 .filter(member -> !oldMembers.contains(member))
                 .collect(Collectors.toSet());
 
         memberRepository.saveAll(newMembers);
     }
 
-    public void removeAllMembers(Group group, List<User> users) {
-        Set<Member> oldMembers = group.getMembers();
-        Set<Member> removeMembers = users.stream()
-                .map(user -> new Member(user, group))
+    public void removeAllMembers(
+            Set<Member> oldMembers,
+            Set<Member> targetMembers
+    ) {
+        Set<Member> removeMembers = targetMembers.stream()
                 .filter(oldMembers::contains)
                 .collect(Collectors.toSet());
 
@@ -78,6 +83,15 @@ public class MemberService {
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
         return member;
+    }
+
+    public Set<Member> getAllMembers(
+            GroupId gourId,
+            List<UserId> userIds
+    ) {
+        return userIds.stream()
+                .map(userId -> this.getMember(gourId, userId))
+                .collect(Collectors.toSet());
     }
 
     public void validateMember(GroupId groupId, UserId userId) {

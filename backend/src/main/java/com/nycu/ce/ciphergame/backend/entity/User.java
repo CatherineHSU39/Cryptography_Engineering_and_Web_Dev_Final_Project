@@ -35,6 +35,13 @@ public class User {
     @ToString.Exclude
     private List<Member> memberships = new ArrayList<>();
 
+    @ToString.Include
+    @Column(
+            name = "fetch_new_at",
+            nullable = false
+    )
+    private LocalDateTime fetchNewAt;
+
     @Column(
             name = "created_at",
             nullable = false,
@@ -45,6 +52,7 @@ public class User {
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.fetchNewAt = LocalDateTime.now();
     }
 
     protected User() {

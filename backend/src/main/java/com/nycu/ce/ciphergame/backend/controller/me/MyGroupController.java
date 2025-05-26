@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +26,7 @@ import com.nycu.ce.ciphergame.backend.dto.member.MemberRequest;
 import com.nycu.ce.ciphergame.backend.dto.member.MemberResponse;
 import com.nycu.ce.ciphergame.backend.dto.message.MessageQuery;
 import com.nycu.ce.ciphergame.backend.dto.message.MessageResponse;
+import com.nycu.ce.ciphergame.backend.dto.message.MessageStatusRequest;
 import com.nycu.ce.ciphergame.backend.entity.Group;
 import com.nycu.ce.ciphergame.backend.entity.Member;
 import com.nycu.ce.ciphergame.backend.entity.Message;
@@ -165,11 +167,28 @@ public class MyGroupController {
             @Valid @ModelAttribute MessageQuery messageQuery
     ) {
         UserId myId = UserId.fromString(jwt.getSubject());
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         Page<Message> messages = myGroupService.getAllMessagesInGroup(
                 myId,
                 groupId,
-                messageQuery.toPageable()
+                messageQuery.toPageable(sort)
         );
         return ResponseEntity.ok(messageMapper.toDTO(messages));
+    }
+
+    @PutMapping("/{groupId}/messages/status")
+    public ResponseEntity<Void> markMessageStatus(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable GroupId groupId,
+            @Valid @RequestBody MessageStatusRequest messageStatusRequest
+    ) {
+        UserId senderId = UserId.fromString(jwt.getSubject());
+        myMemberService.markMessageStatus(
+                senderId,
+                groupId,
+                messageStatusRequest.getTimestemp()
+        );
+
+        return ResponseEntity.ok().build();
     }
 }

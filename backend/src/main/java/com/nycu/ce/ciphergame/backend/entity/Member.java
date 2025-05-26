@@ -2,9 +2,7 @@ package com.nycu.ce.ciphergame.backend.entity;
 
 import java.time.LocalDateTime;
 
-import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
 import com.nycu.ce.ciphergame.backend.entity.id.MemberId;
-import com.nycu.ce.ciphergame.backend.entity.id.UserId;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
@@ -50,9 +48,17 @@ public class Member {
     )
     private LocalDateTime joinedAt;
 
+    @ToString.Include
+    @Column(
+            name = "read_at",
+            nullable = false
+    )
+    private LocalDateTime readAt;
+
     @PrePersist
     public void onCreate() {
         this.joinedAt = LocalDateTime.now();
+        this.readAt = LocalDateTime.now();
     }
 
     protected Member() {
