@@ -14,7 +14,7 @@ import com.nycu.ce.ciphergame.backend.mapper.AuditMapper;
 import com.nycu.ce.ciphergame.backend.service.audit.AuditService;
 
 @RestController
-@RequestMapping("/app/audits")
+@RequestMapping("/audits")
 public class AuditController {
 
     @Autowired

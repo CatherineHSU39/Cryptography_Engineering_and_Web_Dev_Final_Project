@@ -1,105 +1,51 @@
 package com.nycu.ce.ciphergame.backend.controller;
 
-import java.util.List;
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nycu.ce.ciphergame.backend.dto.message.MessageRequest;
+import com.nycu.ce.ciphergame.backend.dto.message.MessageQuery;
 import com.nycu.ce.ciphergame.backend.dto.message.MessageResponse;
-import com.nycu.ce.ciphergame.backend.service.GroupService;
+import com.nycu.ce.ciphergame.backend.entity.Message;
+import com.nycu.ce.ciphergame.backend.entity.id.MessageId;
+import com.nycu.ce.ciphergame.backend.mapper.MessageMapper;
 import com.nycu.ce.ciphergame.backend.service.MessageService;
 
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/app/groups/{groupId}/messages")
+@RequestMapping("/messages")
 public class MessageController {
 
     @Autowired
-    private MessageService messageService;
+    MessageService messageService;
 
     @Autowired
-    private GroupService groupService;
+    MessageMapper messageMapper;
 
     @GetMapping
-    public ResponseEntity<List<MessageResponse>> getAllMessages(
-            @AuthenticationPrincipal Jwt jwt,
-            @PathVariable UUID groupId
+    public ResponseEntity<Page<MessageResponse>> getAllMessages(
+            @Valid @ModelAttribute MessageQuery messageQuery
     ) {
-        UUID senderId = UUID.fromString(jwt.getSubject());
-        if (!groupService.isUserInGroup(senderId, groupId)) {
-            return ResponseEntity.status(403).build();
-        }
-        List<MessageResponse> messages = messageService.getAllMessages(groupId);
-        return ResponseEntity.ok(messages);
-    }
-
-    @GetMapping("/{messageId}")
-    public ResponseEntity<MessageResponse> getMessageById(
-            @AuthenticationPrincipal Jwt jwt,
-            @PathVariable UUID groupId,
-            @PathVariable UUID messageId
-    ) {
-        UUID senderId = UUID.fromString(jwt.getSubject());
-        if (!groupService.isUserInGroup(senderId, groupId)
-                || !messageService.isMessageInGroup(messageId, groupId)) {
-            return ResponseEntity.status(403).build();
-        }
-        MessageResponse message = messageService.getMessageById(messageId);
-        return ResponseEntity.ok(message);
-    }
-
-    @PostMapping()
-    public ResponseEntity<MessageResponse> createMessage(
-            @AuthenticationPrincipal Jwt jwt,
-            @PathVariable UUID groupId,
-            @RequestBody MessageRequest messageRequest
-    ) {
-        UUID senderId = UUID.fromString(jwt.getSubject());
-        if (!groupService.isUserInGroup(senderId, groupId)) {
-            return ResponseEntity.status(403).build();
-        }
-        MessageResponse message = messageService.createMessage(senderId, groupId, messageRequest);
-        return ResponseEntity.ok(message);
-    }
-
-    @PutMapping("/{messageId}")
-    public ResponseEntity<MessageResponse> updateMessage(
-            @AuthenticationPrincipal Jwt jwt,
-            @PathVariable UUID groupId,
-            @PathVariable UUID messageId,
-            @RequestBody MessageRequest messageRequest
-    ) {
-        UUID senderId = UUID.fromString(jwt.getSubject());
-        if (!groupService.isUserInGroup(senderId, groupId)
-                || !messageService.isMessageInGroup(messageId, groupId)) {
-            return ResponseEntity.status(403).build();
-        }
-        MessageResponse message = messageService.updateMessage(messageId, messageRequest);
-        return ResponseEntity.ok(message);
+        Pageable pageable = messageQuery.toPageable();
+        Page<Message> message = messageService.getAllMessages(pageable);
+        return ResponseEntity.ok(messageMapper.toDTO(message));
     }
 
     @DeleteMapping("/{messageId}")
     public ResponseEntity<Void> deleteMessage(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable UUID groupId,
-            @PathVariable UUID messageId
+            @PathVariable MessageId messageId
     ) {
-        UUID senderId = UUID.fromString(jwt.getSubject());
-        if (!groupService.isUserInGroup(senderId, groupId)
-                || !messageService.isMessageInGroup(messageId, groupId)) {
-            return ResponseEntity.status(403).build();
-        }
         messageService.deleteMessage(messageId);
         return ResponseEntity.ok().build();
     }
