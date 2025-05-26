@@ -24,7 +24,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     SELECT m
     FROM Message m
     WHERE m.group.id IN :groupIds
-    AND m.createdAt > :timestamp
+    AND m.createdAt >= :timestamp
 """)
     Page<Message> findAllSinceCreatedAtGroupIdIn(
             @Param("timestamp") LocalDateTime timestamp,
