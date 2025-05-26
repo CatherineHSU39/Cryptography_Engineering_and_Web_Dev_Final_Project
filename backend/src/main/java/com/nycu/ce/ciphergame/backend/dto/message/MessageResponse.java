@@ -14,7 +14,7 @@ public class MessageResponse {
     private UUID groupId;
     private UUID senderId;
     private String senderName;
-    private String encryptedMessage;
+    private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

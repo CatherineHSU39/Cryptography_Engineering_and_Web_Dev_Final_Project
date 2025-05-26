@@ -1,4 +1,4 @@
-package com.nycu.ce.ciphergame.backend.dto.group;
+package com.nycu.ce.ciphergame.backend.dto.member;
 
 import java.util.UUID;
 
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GroupMemberResponse {
+public class MemberResponse {
 
     private UUID userId;
     private String username;
