@@ -23,6 +23,25 @@ echo "🧹 Dropping existing tables and views..."
 
 docker exec -i db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<EOF
 DROP VIEW IF EXISTS users_backend_view CASCADE;
+DROP VIEW IF EXISTS users_kms_view CASCADE;
+
+DROP TABLE IF EXISTS
+  backend_audit_log,
+  kms_audit_log,
+  encrypted_deks,
+  cmks,
+  group_members,
+  messages,
+  groups,
+  users,
+  kms_users
+CASCADE;
+EOF
+
+echo "🧹 Dropping existing tables and views..."
+
+docker exec -i db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<EOF
+DROP VIEW IF EXISTS users_backend_view CASCADE;
 
 DROP TABLE IF EXISTS
   backend_audit_log,
@@ -74,6 +93,11 @@ CREATE OR REPLACE VIEW users_backend_view AS
 SELECT id, username, fetch_new_at, created_at
 FROM users;
 
+-- Create safe view of user data for kms (no password, no TOTP secret)
+CREATE OR REPLACE VIEW users_kms_view AS
+SELECT id, user_pub_pem, created_at
+FROM users;
+
 -- Grant precise permissions
 -- Backend
 GRANT SELECT, INSERT, UPDATE, DELETE ON messages, groups, group_members TO ${BACKEND_USER};
@@ -92,6 +116,9 @@ GRANT INSERT ON kms_audit_log TO ${AUTH_USER};
 -- KMS
 GRANT SELECT, INSERT, UPDATE ON encrypted_deks, cmks TO ${KMS_USER};
 GRANT SELECT, INSERT ON kms_audit_log TO ${KMS_USER};
+
+-- Grant SELECT on the view to kms only
+GRANT SELECT, UPDATE ON users_kms_view TO ${KMS_USER};
 
 EOF
 

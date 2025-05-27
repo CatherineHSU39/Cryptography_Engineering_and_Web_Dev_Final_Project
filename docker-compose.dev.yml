@@ -2,10 +2,12 @@ version: '3.9'
 
 services:
   frontend:
-    image: node:lts
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     container_name: frontend
     working_dir: /app
-    command: npm run dev
+    command: npm run dev -- --host
     ports:
       - "3000:3000"
     volumes:
@@ -19,6 +21,7 @@ services:
     command: "./mvnw spring-boot:run -Dspring-boot.run.arguments=--logging.level.org.springframework.security=DEBUG"
     ports:
       - "8080:8080"
+    working_dir: /app
     volumes:
       - ./backend:/app
       - ~/.m2:/root/.m2
@@ -30,6 +33,7 @@ services:
     command: "./mvnw spring-boot:run -Dspring-boot.run.arguments=--logging.level.org.springframework.security=DEBUG"
     ports:
       - "8081:8081"
+    working_dir: /app
     volumes:
       - ./auth:/app
       - ~/.m2:/root/.m2
@@ -39,4 +43,5 @@ services:
   kms:
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
-      - ./kms:/code
+      - ./kms:/app
+    working_dir: /app

@@ -3,8 +3,9 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR NOT NULL UNIQUE,
     password_hash VARCHAR NOT NULL,
-    encrypted_totp_secret VARCHAR,
+    encrypted_totp_secret VARCHAR NOT NULL,
     role VARCHAR NOT NULL CHECK (role IN ('USER', 'ADMIN', 'AUDITOR')),
+    user_pub_pem VARCHAR NOT NULL,
     fetch_new_at TIMESTAMP NOT NULL DEFAULT now(),
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
@@ -41,8 +42,7 @@ CREATE TABLE IF NOT EXISTS encrypted_deks (
     owner_id UUID REFERENCES users(id),
     entity_id UUID NOT NULL,
     cmk_version INTEGER NOT NULL CHECK (cmk_version >= 1),
-    encrypted_dek BYTEA NOT NULL,
-    purpose VARCHAR CHECK (purpose IN ('message', 'totp')),
+    encrypted_dek TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
