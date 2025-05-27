@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
