@@ -3,9 +3,9 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR NOT NULL UNIQUE,
     password_hash VARCHAR NOT NULL,
-    encrypted_totp_secret VARCHAR NOT NULL,
+    encrypted_totp_secret VARCHAR,
     role VARCHAR NOT NULL CHECK (role IN ('USER', 'ADMIN', 'AUDITOR')),
-    user_pub_pem VARCHAR NOT NULL,
+    user_pub_pem VARCHAR,
     fetch_new_at TIMESTAMP NOT NULL DEFAULT now(),
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
