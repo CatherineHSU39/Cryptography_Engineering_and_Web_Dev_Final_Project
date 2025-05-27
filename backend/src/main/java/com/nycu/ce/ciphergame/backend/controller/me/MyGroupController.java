@@ -2,6 +2,7 @@ package com.nycu.ce.ciphergame.backend.controller.me;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -140,7 +141,9 @@ public class MyGroupController {
         myMemberService.addAllMyMembers(
                 myId,
                 groupId,
-                memberRequest.getMemberIds()
+                memberRequest.getMemberIds().stream()
+                        .map(UserId::fromUUID)
+                        .collect(Collectors.toList())
         );
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -155,7 +158,9 @@ public class MyGroupController {
         myMemberService.removeAllMyMembers(
                 myId,
                 groupId,
-                memberRequest.getMemberIds()
+                memberRequest.getMemberIds().stream()
+                        .map(UserId::fromUUID)
+                        .collect(Collectors.toList())
         );
         return ResponseEntity.noContent().build();
     }

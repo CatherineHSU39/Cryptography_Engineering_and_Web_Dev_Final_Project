@@ -1,6 +1,7 @@
 package com.nycu.ce.ciphergame.backend.controller.me;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import com.nycu.ce.ciphergame.backend.dto.message.MessageQuery;
 import com.nycu.ce.ciphergame.backend.dto.message.MessageResponse;
 import com.nycu.ce.ciphergame.backend.dto.message.MessageUpdateRequest;
 import com.nycu.ce.ciphergame.backend.entity.Message;
+import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
 import com.nycu.ce.ciphergame.backend.entity.id.MessageId;
 import com.nycu.ce.ciphergame.backend.entity.id.UserId;
 import com.nycu.ce.ciphergame.backend.mapper.MessageMapper;
@@ -48,7 +50,9 @@ public class MyMessageController {
         UserId senderId = UserId.fromString(jwt.getSubject());
         List<Message> messages = myMessageService.createMyMessage(
                 senderId,
-                messageRequest.getGroupIds(),
+                messageRequest.getGroupIds().stream()
+                        .map(GroupId::fromUUID)
+                        .collect(Collectors.toList()),
                 messageRequest.getContent()
         );
         return ResponseEntity.ok(messageMapper.toDTO(messages));
