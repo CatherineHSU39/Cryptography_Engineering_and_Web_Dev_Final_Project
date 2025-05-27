@@ -31,10 +31,9 @@ VALUES
    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', decode('deadbeef', 'hex'), now(), now());
 
 -- Sample Encrypted DEKs
-INSERT INTO encrypted_deks (id, owner_id, cmk_version, encrypted_dek, purpose, created_at)
+INSERT INTO encrypted_deks (id, owner_id, cmk_version, encrypted_dek, created_at)
 VALUES
-  ('dddddddd-dddd-4ddd-8ddd-dddddddddddd', '11111111-1111-4111-8111-111111111111', 1,
-   decode('beadfeed', 'hex'), 'message', now());
+  ('dddddddd-dddd-4ddd-8ddd-dddddddddddd', '11111111-1111-4111-8111-111111111111', 1,decode('beadfeed', 'hex'), now());
 
 -- Link DEK to Message
 INSERT INTO message_dek_links (message_id, recipient_id, dek_id)
