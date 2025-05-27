@@ -10,8 +10,8 @@
 -- Sample Users
 INSERT INTO users (id, username, password_hash, encrypted_totp_secret, role, created_at)
 VALUES
-  ('11111111-1111-4111-8111-111111111111', 'alice', 'bcrypt_hash_1', 'totp_enc_1', 'user', now()),
-  ('22222222-2222-4222-8222-222222222222', 'bob', 'bcrypt_hash_2', 'totp_enc_2', 'admin', now());
+  ('11111111-1111-4111-8111-111111111111', 'alice', 'bcrypt_hash_1', NULL, 'USER', now()),
+  ('22222222-2222-4222-8222-222222222222', 'bob', 'bcrypt_hash_2', NULL, 'ADMIN', now());
 
 -- Sample Groups
 INSERT INTO groups (id, name, created_at)
@@ -35,15 +35,20 @@ INSERT INTO encrypted_deks (id, owner_id, cmk_version, encrypted_dek, created_at
 VALUES
   ('dddddddd-dddd-4ddd-8ddd-dddddddddddd', '11111111-1111-4111-8111-111111111111', 1,decode('beadfeed', 'hex'), now());
 
--- Link DEK to Message
-INSERT INTO message_dek_links (message_id, recipient_id, dek_id)
-VALUES
-  ('abababab-abab-4bab-8bab-abababababab', '22222222-2222-4222-8222-222222222222', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd');
+-- -- Link DEK to Message
+-- INSERT INTO message_dek_links (message_id, recipient_id, dek_id)
+-- VALUES
+--   ('abababab-abab-4bab-8bab-abababababab', '22222222-2222-4222-8222-222222222222', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd');
 
--- Link DEK to TOTP
-INSERT INTO user_totp_dek_links (user_id, dek_id)
+INSERT INTO message_recipients (message_id, user_id, group_id)
 VALUES
-  ('11111111-1111-4111-8111-111111111111', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd');
+  ('abababab-abab-4bab-8bab-abababababab', '22222222-2222-4222-8222-222222222222', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
+
+
+-- -- Link DEK to TOTP
+-- INSERT INTO user_totp_dek_links (user_id, dek_id)
+-- VALUES
+--   ('11111111-1111-4111-8111-111111111111', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd');
 
 -- Insert CMK
 INSERT INTO cmks (id, user_id, version, key_material, active, created_at)
@@ -52,7 +57,7 @@ VALUES
    decode('cafebabe', 'hex'), true, now());
 
 -- Insert AuditLog
-INSERT INTO audit_log (id, actor_id, action, target_id, timestamp, hash, prev_hash)
+INSERT INTO kms_audit_log (id, actor_id, action, target_id, timestamp, hash, prev_hash)
 VALUES
   ('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee', '22222222-2222-4222-8222-222222222222',
    'wrap', 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', now(), 'hash_1', 'hash_0');

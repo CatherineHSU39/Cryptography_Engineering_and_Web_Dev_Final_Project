@@ -19,40 +19,58 @@ services:
     build: ./backend
     expose:
       - "8080"
+    depends_on:
+      - db
     environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=${BACKEND_DB_URL}
       - SPRING_DATASOURCE_USERNAME=${BACKEND_USER}
       - SPRING_DATASOURCE_PASSWORD=${BACKEND_PASSWORD}
+      - JWT_ISSUER_URI=${JWT_ISSUER_URI}
 
   auth-server:
     container_name: auth-server
     build: ./auth
     expose:
       - "8081"
+    depends_on:
+      - db
     environment:
+      - SERVER_PORT=8081
+      - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=${AUTH_DB_URL}
       - SPRING_DATASOURCE_USERNAME=${AUTH_USER}
       - SPRING_DATASOURCE_PASSWORD=${AUTH_PASSWORD}
+      - JWT_ISSUER_URI=${JWT_ISSUER_URI}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
 
   kms:
     container_name: kms
     build: ./kms
     expose:
       - "8000"
+    depends_on:
+      - db
     environment:
-      - DB_URL=postgresql://db:5432/app
+      - DB_URL=${KMS_DB_URL}
+      - DB_USERNAME=${KMS_USER}
+      - DB_PASSWORD=${KMS_PASSWORD}
+      - JWT_ISSUER_URI=${JWT_ISSUER_URI}
 
   db:
     image: postgres:15
     container_name: db
+    expose:
+      - "5432"
     restart: always
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d
     environment:
-      POSTGRES_DB: app
-      POSTGRES_USER: appuser
-      POSTGRES_PASSWORD: apppassword
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
 volumes:
   db-data:
