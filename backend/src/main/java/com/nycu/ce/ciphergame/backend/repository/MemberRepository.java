@@ -1,6 +1,7 @@
 package com.nycu.ce.ciphergame.backend.repository;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,5 +32,7 @@ public interface MemberRepository extends JpaRepository<Member, MemberId> {
     List<User> findAllUsers(@Param("groupId") UUID groupId);
 
     long countByIdIn(List<MemberId> ids);
+
+    Set<Member> findAllByIdIn(Set<MemberId> ids);
 
 }

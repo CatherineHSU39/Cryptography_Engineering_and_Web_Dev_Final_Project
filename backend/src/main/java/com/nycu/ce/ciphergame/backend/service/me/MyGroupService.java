@@ -44,7 +44,7 @@ public class MyGroupService {
         Member me = new Member(user, group);
 
         // Step 2: Add members to group
-        memberService.addAllMembers(group.getMembers(), Set.of(me));
+        memberService.addAllMembers(Set.of(me));
         return group;
     }
 
