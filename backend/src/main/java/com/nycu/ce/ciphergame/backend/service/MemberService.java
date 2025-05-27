@@ -42,37 +42,26 @@ public class MemberService {
                 .map(user -> new Member(user, group))
                 .collect(Collectors.toSet());
 
-        this.addAllMembers(group.getMembers(), newMembers);
+        this.addAllMembers(newMembers);
     }
 
     public void removeAllMembers(GroupId groupId, List<UserId> userIds) {
-        Group group = groupService.getGroupById(groupId);
         Set<Member> targetMembers = this.getAllMembers(groupId, userIds);
 
-        this.removeAllMembers(group.getMembers(), targetMembers);
+        this.removeAllMembers(targetMembers);
     }
 
     public void addAllMembers(
-            Set<Member> oldMembers,
             Set<Member> targetMembers
     ) {
-
-        Set<Member> newMembers = targetMembers.stream()
-                .filter(member -> !oldMembers.contains(member))
-                .collect(Collectors.toSet());
-
-        memberRepository.saveAll(newMembers);
+        memberRepository.saveAll(targetMembers);
     }
 
     public void removeAllMembers(
-            Set<Member> oldMembers,
             Set<Member> targetMembers
     ) {
-        Set<Member> removeMembers = targetMembers.stream()
-                .filter(oldMembers::contains)
-                .collect(Collectors.toSet());
 
-        memberRepository.deleteAll(removeMembers);
+        memberRepository.deleteAll(targetMembers);
     }
 
     public Member getMember(GroupId groupId, UserId userId) {
@@ -86,12 +75,16 @@ public class MemberService {
     }
 
     public Set<Member> getAllMembers(
-            GroupId gourId,
+            GroupId groupId,
             List<UserId> userIds
     ) {
-        return userIds.stream()
-                .map(userId -> this.getMember(gourId, userId))
+        Set<MemberId> memberIds = userIds.stream()
+                .map(userId -> MemberId.builder()
+                        .userId(userId.toUUID())
+                        .groupId(groupId.toUUID())
+                        .build())
                 .collect(Collectors.toSet());
+        return memberRepository.findAllByIdIn(memberIds);
     }
 
     public void validateMember(GroupId groupId, UserId userId) {
