@@ -63,6 +63,15 @@ public class MyMessageService {
         return page;
     }
 
+    public Void setNewMessagesTimstemp(
+            UserId userId
+    ) {
+        User user = userService.getUserById(userId);
+        user.setFetchNewAt(LocalDateTime.now());
+        userService.updateUser(user);
+        return null;
+    }
+
     public List<Message> createMyMessage(
             UserId userId,
             List<GroupId> groupIds,
