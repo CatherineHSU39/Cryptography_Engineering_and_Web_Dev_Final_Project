@@ -29,6 +29,21 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${BACKEND_PASSWORD}
       - JWT_ISSUER_URI=${JWT_ISSUER_URI}
 
+  dek:
+    container_name: dek
+    build: ./dek
+    expose:
+      - "8082"
+    depends_on:
+      - db
+    environment:
+      - SERVER_PORT=8082
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=${DEK_DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DEK_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DEK_PASSWORD}
+      - JWT_ISSUER_URI=${JWT_ISSUER_URI}
+
   auth-server:
     container_name: auth-server
     build: ./auth

@@ -79,6 +79,15 @@ BEGIN
 END
 \$\$;
 
+-- Create dek role if not exists
+DO \$\$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${DEK_USER}') THEN
+    CREATE ROLE ${DEK_USER} WITH LOGIN PASSWORD '${DEK_PASSWORD}';
+  END IF;
+END
+\$\$;
+
 -- Create Auth Server role if not exists
 DO \$\$
 BEGIN
@@ -108,6 +117,9 @@ GRANT SELECT, UPDATE ON users_backend_view TO ${BACKEND_USER};
 -- Grant SELECT, INSERT on the backend_audit_log
 GRANT SELECT, INSERT on backend_audit_log TO ${BACKEND_USER};
 GRANT USAGE, SELECT ON SEQUENCE backend_audit_log_id_seq TO ${BACKEND_USER};
+
+-- Grant SELECT, INSERT, UPDATE on the dek
+GRANT SELECT, INSERT, UPDATE on encrypted_deks TO ${DEK_USER};
 
 -- Auth Server
 GRANT SELECT, INSERT, UPDATE ON users, encrypted_deks TO ${AUTH_USER};

@@ -39,8 +39,7 @@ CREATE TABLE IF NOT EXISTS group_members (
 -- EncryptedDEKs Table
 CREATE TABLE IF NOT EXISTS encrypted_deks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    owner_id UUID REFERENCES users(id),
-    entity_id UUID NOT NULL,
+    owner_id UUID NOT NULL,
     cmk_version INTEGER NOT NULL CHECK (cmk_version >= 1),
     encrypted_dek TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now()

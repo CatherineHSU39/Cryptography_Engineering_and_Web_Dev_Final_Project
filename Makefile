@@ -7,6 +7,7 @@ COMPOSE_DEV=docker-compose.dev.yml
 
 COMPOSE_FRONTEND_DEV=docker-compose.frontend.dev.yml
 COMPOSE_BACKEND_DEV=docker-compose.backend.dev.yml
+COMPOSE_DEK_DEV=docker-compose.dek.dev.yml
 COMPOSE_AUTH_DEV=docker-compose.auth.dev.yml
 COMPOSE_KMS_DEV=docker-compose.kms.dev.yml
 
@@ -27,6 +28,10 @@ dev-backend:
 	@echo "🔧 Starting backend development environment..."
 	docker-compose -f $(COMPOSE_BASE) -f $(COMPOSE_BACKEND_DEV) up --build -d
 
+dev-dek:
+	@echo "🔧 Starting dek development environment..."
+	docker-compose -f $(COMPOSE_BASE) -f $(COMPOSE_DEK_DEV) up --build -d
+
 dev-auth:
 	@echo "🔧 Starting auth development environment..."
 	docker-compose -f $(COMPOSE_BASE) -f $(COMPOSE_AUTH_DEV) up --build -d
@@ -44,6 +49,10 @@ dev-frontend-init: ## Start frontend dev environment and initialize DB roles
 
 dev-backend-init: ## Start backend dev environment and initialize DB roles
 	make dev-backend
+	make init-db MODE=development
+
+dev-dek-init: ## Start backend dev environment and initialize DB roles
+	make dev-dek
 	make init-db MODE=development
 
 dev-auth-init: ## Start auth dev environment and initialize DB roles
@@ -93,8 +102,12 @@ clean: ## Stop all containers and remove volumes
 init-spring: ## Initialize Spring Boot applications
 	@echo "🔧 Initializing backend Spring Boot application..."
 	cd backend && ./mvnw clean install -Dmaven.test.skip=true
+
 	@echo "🔧 Initializing auth Spring Boot application..."
 	cd auth && ./mvnw clean install -Dmaven.test.skip=true
+
+	@echo "🔧 Initializing dek Spring Boot application..."
+	cd dek && ./mvnw clean install -Dmaven.test.skip=true
 
 # ---------------------------
 # 🔐 DB Init (Post-Start SQL Setup)
