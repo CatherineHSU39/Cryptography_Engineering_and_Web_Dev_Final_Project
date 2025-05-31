@@ -72,6 +72,17 @@ public class MyMessageController {
         return ResponseEntity.ok(messageMapper.toDTO(messages));
     }
 
+    @PutMapping("/new")
+    public ResponseEntity<Void> setNewMessagesTimstemp(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UserId senderId = UserId.fromString(jwt.getSubject());
+        myMessageService.setNewMessagesTimstemp(
+                senderId
+        );
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/{messageId}")
     public ResponseEntity<MessageResponse> updateMessage(
             @AuthenticationPrincipal Jwt jwt,
