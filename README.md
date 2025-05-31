@@ -42,6 +42,12 @@ Copy `.env.example` to `.env`, then fill in required database and role credentia
 
 ## 🧪 Local Development
 
+When first start or there's changes on spring services:
+
+```bash
+make init-spring
+```
+
 Run with hot reload using:
 
 ```bash
@@ -49,9 +55,16 @@ make dev
 make init-db MODE=development  # Creates tables, roles, and seeds dev data
 ```
 
-- Backend/Auth run with `spring-boot:run`
-- Frontend runs `npm run dev`
-- KMS runs with `uvicorn --reload`
+or
+
+```bash
+make dev-init
+```
+
+- Backend run with `make dev-backend-init`
+- Auth run with `make dev-auth-init`
+- Frontend runs `make dev-frontend-init`
+- KMS runs with `make dev-kms-init`
 - PostgreSQL is seeded with example data (Alice, Bob)
 
 Stop the environment with:
@@ -72,7 +85,7 @@ make init-db                  # Defaults to production mode (no seed data)
 ```
 
 - Vue app is built via multi-stage Dockerfile
-- NGINX serves static frontend + reverse proxies `/api`, `/auth`, `/kms`
+- NGINX serves static frontend + reverse proxies `/app`, `/auth`, `/kms`
 
 Stop the environment with:
 
@@ -94,15 +107,20 @@ make clean
 
 ## ⚙️ Makefile Quick Reference
 
-| Command                         | Description                     |
-| ------------------------------- | ------------------------------- |
-| `make dev`                      | Start development environment   |
-| `make prod`                     | Start production environment    |
-| `make init-db`                  | Init roles + tables (prod mode) |
-| `make init-db MODE=development` | Init roles + seed data (dev)    |
-| `make dev-down`                 | Stop dev environment            |
-| `make prod-down`                | Stop prod environment           |
-| `make clean`                    | Stop and remove all volumes     |
+| Command                         | Description                                |
+| ------------------------------- | ------------------------------------------ |
+| `make init-spring`              | Compile spring files for later use         |
+| `make dev`                      | Start development environment              |
+| `make dev-frontend-init`        | Start development environment for frontend |
+| `make dev-backend-init`         | Start development environment for backend  |
+| `make dev-auth-init`            | Start development environment for auth     |
+| `make dev-kms-init`             | Start development environment for kms      |
+| `make prod`                     | Start production environment               |
+| `make init-db`                  | Init roles + tables (prod mode)            |
+| `make init-db MODE=development` | Init roles + seed data (dev)               |
+| `make dev-down`                 | Stop dev environment                       |
+| `make prod-down`                | Stop prod environment                      |
+| `make clean`                    | Stop and remove all volumes                |
 
 ---
 
