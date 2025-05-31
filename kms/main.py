@@ -1,7 +1,6 @@
-
 from fastapi import FastAPI, Depends, HTTPException, Header
 from pydantic import BaseModel
-from pqcrypto.kem.kyber512 import generate_keypair, encrypt, decrypt
+from pqc.kem import kyber512 as kemalg
 from typing import List, Dict
 from jose import jwt, JWTError
 import base64
@@ -26,8 +25,8 @@ class KMSState:
 
     def get_or_create_user_cmk(self, user_id: str):
         if user_id not in self.user_keys:
-            pub, priv = generate_keypair()
-            self.user_keys[user_id] = {'public': pub, 'private': priv}
+            pk, sk = kemalg.keypair()
+            self.user_keys[user_id] = {'public': pk, 'private': sk}
             self.log(f"Generated CMK for {user_id}")
         return self.user_keys[user_id]['public'], self.user_keys[user_id]['private']
 
@@ -47,8 +46,8 @@ class KMSState:
 
     def rotate_all_cmk(self):
         for user_id in self.user_keys:
-            pub, priv = generate_keypair()
-            self.user_keys[user_id] = {'public': pub, 'private': priv}
+            pk, sk = kemalg.keypair()
+            self.user_keys[user_id] = {'public': pk, 'private': sk}
         self.log("Rotated CMKs for all users")
 
 kms_state = KMSState()
@@ -101,9 +100,9 @@ def generate_data_key(req: GenerateDataKeyRequest):
     key = os.urandom(32)  # symmetric key
     result = {}
     for user_id in req.user_ids:
-        pub, _ = kms_state.get_or_create_user_cmk(user_id)
-        ciphertext, _ = encrypt(pub)
-        result[user_id] = base64.b64encode(ciphertext).decode()
+        pk, _ = kms_state.get_or_create_user_cmk(user_id)
+        ss, kem_ct = kemalg.encap(pk)
+        result[user_id] = base64.b64encode(kem_ct).decode()
     kms_state.log(f"Generated data key for users: {','.join(req.user_ids)}")
     return {
         "plaintext_key": base64.b64encode(key).decode(),
@@ -114,15 +113,15 @@ def generate_data_key(req: GenerateDataKeyRequest):
 def decrypt_data_key(req: DecryptDataKeyRequest, user_id: str = Depends(get_user_id_from_jwt)):
     if user_id not in kms_state.user_keys or user_id not in kms_state.user_rsa_keys:
         raise HTTPException(status_code=404, detail="User not registered or missing RSA key")
-    _, priv = kms_state.get_or_create_user_cmk(user_id)
+    _, sk = kms_state.get_or_create_user_cmk(user_id)
     rsa_pub_key = RSA.import_key(kms_state.user_rsa_keys[user_id])
     cipher_rsa = PKCS1_OAEP.new(rsa_pub_key)
 
     response_list = []
     for enc in req.encrypted_deks:
-        ciphertext = base64.b64decode(enc)
-        plaintext = decrypt(ciphertext, priv)
-        response_list.append({"dek": base64.b64encode(plaintext).decode()})
+        kem_ct = base64.b64decode(enc)
+        ss = kemalg.decap(kem_ct, sk)
+        response_list.append({"dek": base64.b64encode(ss).decode()})
 
     json_payload = json.dumps(response_list).encode()
     encrypted = cipher_rsa.encrypt(json_payload)
