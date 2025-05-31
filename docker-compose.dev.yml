@@ -45,3 +45,5 @@ services:
     volumes:
       - ./kms:/app
     working_dir: /app
+    ports:
+      - "8000:8000"       # 這行是新增的，讓宿主機可以連到容器的 8000 端口
