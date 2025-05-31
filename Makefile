@@ -2,23 +2,56 @@ SHELL := /bin/bash
 
 # Environment setup
 ENV_FILE=.env
+COMPOSE_BASE=docker-compose.yml
+COMPOSE_DEV=docker-compose.dev.yml
+
+COMPOSE_FRONTEND_DEV=docker-compose.frontend.dev.yml
+COMPOSE_BACKEND_DEV=docker-compose.backend.dev.yml
+COMPOSE_AUTH_DEV=docker-compose.auth.dev.yml
+COMPOSE_KMS_DEV=docker-compose.kms.dev.yml
 
 # ---------------------------
 # 🧪 Development Targets
 # ---------------------------
+# Default dev: all in dev mode (legacy)
 dev: ## Build and start dev environment (with hot reload)
 	@echo "🔧 Starting development environment..."
-	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
+	docker-compose -f $(COMPOSE_BASE) -f $(COMPOSE_DEV) up --build -d
 
-dev-up: ## Start dev environment (with hot reload)
-	@echo "🔧 Starting development environment..."
-	docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# Per-service dev commands
+dev-frontend:
+	@echo "🔧 Starting frontend development environment..."
+	docker-compose -f $(COMPOSE_BASE) -f $(COMPOSE_FRONTEND_DEV) up --build -d
+
+dev-backend:
+	@echo "🔧 Starting backend development environment..."
+	docker-compose -f $(COMPOSE_BASE) -f $(COMPOSE_BACKEND_DEV) up --build -d
+
+dev-auth:
+	@echo "🔧 Starting auth development environment..."
+	docker-compose -f $(COMPOSE_BASE) -f $(COMPOSE_AUTH_DEV) up --build -d
+
+dev-kms:
+	@echo "🔧 Starting kms development environment..."
+	docker-compose -f $(COMPOSE_BASE) -f $(COMPOSE_KMS_DEV) up --build -d
 
 dev-down: ## Stop dev environment
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml down -v
 
-dev-init: ## Start dev environment and initialize DB roles
-	make dev
+dev-frontend-init: ## Start frontend dev environment and initialize DB roles
+	make dev-frontend
+	make init-db MODE=development
+
+dev-backend-init: ## Start backend dev environment and initialize DB roles
+	make dev-backend
+	make init-db MODE=development
+
+dev-auth-init: ## Start auth dev environment and initialize DB roles
+	make dev-auth
+	make init-db MODE=development
+
+dev-kms-init: ## Start kms dev environment and initialize DB roles
+	make dev-kms
 	make init-db MODE=development
 
 # ---------------------------
@@ -50,6 +83,7 @@ ps: ## Show running containers
 	docker compose ps
 
 clean: ## Stop all containers and remove volumes
+	docker-compose -f $(COMPOSE_BASE) -f $(COMPOSE_DEV) down
 	docker compose down -v
 
 
