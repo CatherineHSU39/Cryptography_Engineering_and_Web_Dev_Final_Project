@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+
+  backend:
+    entrypoint: []
+    command: "./mvnw spring-boot:run -Dspring-boot.run.arguments=--logging.level.org.springframework.security=DEBUG"
+    ports:
+      - "8080:8080"
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - ~/.m2:/root/.m2
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  auth-server:
+    ports:
+      - "8081:8081"

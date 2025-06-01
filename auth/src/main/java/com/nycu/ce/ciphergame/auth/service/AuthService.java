@@ -34,9 +34,12 @@ public class AuthService {
         return jwtUtils.generateServiceToken(serviceName);
     }
 
-    public Boolean verify2fa(UUID userId, int code) {
+    public Boolean verify2fa(UUID userId, String code) {
+        int codeInt = Integer.parseInt(code);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return gaService.isValid(user.getTotpSecret(), code);
+
+        return gaService.isValid(user.getTotpSecret(), codeInt);
     }
 }

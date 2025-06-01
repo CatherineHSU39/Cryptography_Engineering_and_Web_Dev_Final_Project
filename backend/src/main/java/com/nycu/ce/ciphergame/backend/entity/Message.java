@@ -13,15 +13,21 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
-@NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 @Table(name = "messages")
 public class Message {
-    
+
+    @EqualsAndHashCode.Include
+    @ToString.Include
     @Id
     @GeneratedValue
     private UUID id;
@@ -35,25 +41,39 @@ public class Message {
     private Group group;
 
     @Column(name = "encrypted_message", nullable = false)
-    private String encryptedMessage;
+    private String content = "";
 
+    @EqualsAndHashCode.Include
+    @ToString.Include
     @Column(
-        name = "created_at", 
-        nullable = false, 
-        updatable = false
-        )
+            name = "created_at",
+            nullable = false,
+            updatable = false
+    )
     private LocalDateTime createdAt;
 
+    @ToString.Include
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    protected Message() {
+
+    }
+
+    public Message(User sender, Group group, String content) {
+        this.sender = sender;
+        this.group = group;
+        this.content = content;
     }
 }

@@ -1,18 +1,35 @@
 package com.nycu.ce.ciphergame.backend.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import com.nycu.ce.ciphergame.backend.dto.message.MessageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Component;
+
 import com.nycu.ce.ciphergame.backend.dto.message.MessageResponse;
 import com.nycu.ce.ciphergame.backend.entity.Message;
 
-@Mapper(componentModel = "spring")
-public interface MessageMapper {
-    Message toEntity(MessageRequest dto);
+@Component
+public class MessageMapper {
 
-    @Mapping(source = "sender.id", target = "senderId")
-    @Mapping(source = "group.id", target = "groupId")
-    @Mapping(source = "id", target = "messageId")
-    MessageResponse toDTO(Message message);
+    public MessageResponse toDTO(Message message) {
+
+        return MessageResponse.builder()
+                .messageId(message.getId())
+                .groupId(message.getGroup().getId())
+                .senderId(message.getSender().getId())
+                .senderName(message.getSender().getUsername())
+                .content(message.getContent())
+                .createdAt(message.getCreatedAt())
+                .updatedAt(message.getUpdatedAt())
+                .build();
+    }
+
+    public Page<MessageResponse> toDTO(Page<Message> messages) {
+        return messages.map(this::toDTO);
+    }
+
+    public List<MessageResponse> toDTO(List<Message> messages) {
+        return messages.stream().map(this::toDTO).collect(Collectors.toList());
+    }
 }

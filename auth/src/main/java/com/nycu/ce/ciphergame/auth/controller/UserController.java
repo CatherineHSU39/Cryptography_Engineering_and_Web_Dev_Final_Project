@@ -16,6 +16,8 @@ import com.nycu.ce.ciphergame.auth.dto.UserRegisterRequest;
 import com.nycu.ce.ciphergame.auth.service.GAService;
 import com.nycu.ce.ciphergame.auth.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -27,13 +29,17 @@ public class UserController {
     UserService userService;
 
     @PostMapping
-    public ResponseEntity<Void> registerUser(@RequestBody UserRegisterRequest request) {
+    public ResponseEntity<Void> registerUser(
+            @Valid @RequestBody UserRegisterRequest request
+    ) {
         userService.createUser(request);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/me/2fa")
-    public ResponseEntity<String> setup2FA(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<String> setup2FA(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
         String secret = gaService.generateKey();
         UUID userId = UUID.fromString(jwt.getSubject());
         userService.saveTotpSecret(userId, secret);

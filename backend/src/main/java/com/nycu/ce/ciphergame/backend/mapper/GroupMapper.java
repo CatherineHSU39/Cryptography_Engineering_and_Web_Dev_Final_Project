@@ -1,26 +1,31 @@
 package com.nycu.ce.ciphergame.backend.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import com.nycu.ce.ciphergame.backend.dto.group.CUGroupRequest;
-import com.nycu.ce.ciphergame.backend.dto.group.CUGroupResponse;
-import com.nycu.ce.ciphergame.backend.dto.group.GetAllGroupResponse;
-import com.nycu.ce.ciphergame.backend.dto.group.GetGroupResponse;
+import org.springframework.stereotype.Component;
+
+import com.nycu.ce.ciphergame.backend.dto.group.GroupRequest;
+import com.nycu.ce.ciphergame.backend.dto.group.GroupResponse;
 import com.nycu.ce.ciphergame.backend.entity.Group;
 
-@Mapper(componentModel = "spring")
-public interface GroupMapper {
+@Component
+public class GroupMapper {
 
-    Group toEntity(CUGroupRequest dto);
+    public Group toEntity(GroupRequest dto) {
+        return new Group(dto.getName());
+    }
 
-    CUGroupResponse toDTOCreateUpdate(Group entity);
+    public GroupResponse toDTO(Group entity) {
+        return GroupResponse.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .build();
+    }
 
-    GetGroupResponse toDTOGet(Group entity);
-
-    GetAllGroupResponse toDTOGetAll(Group entity);
-
-    void updateEntityFromDTO(CUGroupRequest dto, @MappingTarget Group entity);
+    public List<GroupResponse> toDTO(List<Group> entity) {
+        return entity.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
 }
-
-

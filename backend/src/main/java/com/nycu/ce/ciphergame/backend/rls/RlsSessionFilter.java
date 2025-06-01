@@ -1,44 +1,59 @@
-package com.nycu.ce.ciphergame.backend.rls;
+// package com.nycu.ce.ciphergame.backend.rls;
 
-import java.io.IOException;
-import java.util.UUID;
+// import java.io.IOException;
+// import java.sql.Connection;
+// import java.sql.PreparedStatement;
+// import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
+// import javax.sql.DataSource;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.security.core.Authentication;
+// import org.springframework.security.core.context.SecurityContextHolder;
+// import org.springframework.security.oauth2.jwt.Jwt;
+// import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+// import org.springframework.stereotype.Component;
+// import org.springframework.web.filter.OncePerRequestFilter;
 
-@Component
-public class RlsSessionFilter extends OncePerRequestFilter {
+// import jakarta.servlet.FilterChain;
+// import jakarta.servlet.ServletException;
+// import jakarta.servlet.http.HttpServletRequest;
+// import jakarta.servlet.http.HttpServletResponse;
 
-    @Autowired
-    private RlsContextService rlsContextService;
+// @Component
+// public class RlsSessionFilter extends OncePerRequestFilter {
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+//     @Autowired
+//     private RlsContextService rlsContextService;
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//     @Autowired
+//     private DataSource dataSource;
 
-        if (authentication instanceof JwtAuthenticationToken jwtAuth && jwtAuth.isAuthenticated()) {
-            Jwt jwt = (Jwt) jwtAuth.getToken();
-            String userId = jwt.getClaimAsString("sub"); // or "user_id" if that's your custom claim
-            rlsContextService.setCurrentUserId(UUID.fromString(userId));
-        }
+//     @Override
+//     protected void doFilterInternal(HttpServletRequest request,
+//             HttpServletResponse response,
+//             FilterChain filterChain) throws ServletException, IOException {
 
-        try {
-            filterChain.doFilter(request, response);
-        } finally {
-            rlsContextService.clear(); // optional but recommended
-        }
-    }
-}
+//         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+//         if (authentication instanceof JwtAuthenticationToken jwtAuth && jwtAuth.isAuthenticated()) {
+//             Jwt jwt = (Jwt) jwtAuth.getToken();
+//             String userId = jwt.getClaimAsString("sub");
+//             UUID uuid = UUID.fromString(userId);
+//             rlsContextService.setCurrentUserId(uuid);
+
+//             try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement("SELECT set_config('app.current_user_id', ?, true)")) {
+//                 stmt.setString(1, uuid.toString());
+//                 stmt.execute();
+//             } catch (Exception e) {
+//                 throw new ServletException("Failed to set app.current_user", e);
+//             }
+//         }
+
+//         try {
+//             filterChain.doFilter(request, response);
+//         } finally {
+//             rlsContextService.clear();
+//         }
+//     }
+// }

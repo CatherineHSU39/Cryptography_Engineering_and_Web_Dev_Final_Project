@@ -1,22 +1,12 @@
 package com.nycu.ce.ciphergame.backend.service;
 
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nycu.ce.ciphergame.backend.dto.group.CUGroupRequest;
-import com.nycu.ce.ciphergame.backend.dto.group.CUGroupResponse;
-import com.nycu.ce.ciphergame.backend.dto.group.GetAllGroupResponse;
-import com.nycu.ce.ciphergame.backend.dto.group.GetGroupResponse;
 import com.nycu.ce.ciphergame.backend.entity.Group;
-import com.nycu.ce.ciphergame.backend.entity.GroupMember;
-import com.nycu.ce.ciphergame.backend.entity.User;
-import com.nycu.ce.ciphergame.backend.mapper.GroupMapper;
-import com.nycu.ce.ciphergame.backend.repository.GroupMemberRepository;
+import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
 import com.nycu.ce.ciphergame.backend.repository.GroupRepository;
 
 import jakarta.transaction.Transactional;
@@ -28,67 +18,35 @@ public class GroupService {
     @Autowired
     private GroupRepository groupRepository;
 
-    @Autowired
-    private GroupMemberRepository groupMemberRepository;
+    public Group getGroupById(GroupId groupId) {
 
-    @Autowired
-    private GroupMapper groupMapper;
-
-    public GetGroupResponse getGroupById(UUID id) {
-        return groupRepository.findById(id)
-                .map(groupMapper::toDTOGet)
-                .orElse(null);
-    }
-
-    public List<GetAllGroupResponse> getAllGroups() {
-        return groupRepository.findAll().stream()
-                .map(groupMapper::toDTOGetAll)
-                .collect(Collectors.toList());
-    }
-    
-    public CUGroupResponse createGroup(CUGroupRequest groupRequest) {
-        Group group = groupMapper.toEntity(groupRequest);
-
-        Group newGroup = groupRepository.save(group);
-
-        Set<User> users = groupRequest.getMemberIds().stream()
-            .map(userId -> new User(userId))
-            .collect(Collectors.toSet());
-
-        Set<GroupMember> newMembers = users.stream()
-            .map(user -> new GroupMember(user, newGroup))
-            .collect(Collectors.toSet());
-
-        groupMemberRepository.saveAll(newMembers);
-        return groupMapper.toDTOCreateUpdate(group);
-    }
-
-    public CUGroupResponse updateGroup(UUID groupId, CUGroupRequest groupRequest) {
-        Group group = groupRepository.findById(groupId)
+        Group group = groupRepository.findById(groupId.toUUID())
                 .orElseThrow(() -> new RuntimeException("Group not found"));
 
-        Set<UUID> existingUserIds = groupMemberRepository.findUserIdsByGroupId(groupId);
-
-        Set<User> usersToAdd = groupRequest.getMemberIds().stream()
-            .filter(userId -> !existingUserIds.contains(userId))
-            .map(userId -> new User(userId))
-            .collect(Collectors.toSet());
-
-        Set<GroupMember> newMembers = usersToAdd.stream()
-            .map(user -> new GroupMember(user, group))
-            .collect(Collectors.toSet());
-
-        groupMemberRepository.saveAll(newMembers);
-
-        if (groupRequest.getName() != null) {
-            group.setName(groupRequest.getName());
-        }
-        
-        Group updatedGroup = groupRepository.save(group);
-        return groupMapper.toDTOCreateUpdate(updatedGroup);
+        return group;
     }
 
-    public void deleteGroup(UUID id) {
-        groupRepository.deleteById(id);
+    public List<Group> getAllGroups() {
+        return groupRepository.findAll();
+    }
+
+    public Group createGroup(String name) {
+        Group group = new Group(name);
+        groupRepository.save(group); // Group now has ID
+        return group;
+    }
+
+    public Group updateGroup(GroupId groupId, String name) {
+        Group group = groupRepository.findById(groupId.toUUID())
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        group.setName(name);
+
+        groupRepository.save(group);
+        return group;
+    }
+
+    public void deleteGroup(GroupId id) {
+        groupRepository.deleteById(id.toUUID());
     }
 }

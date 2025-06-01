@@ -1,7 +1,8 @@
 package com.nycu.ce.ciphergame.backend.entity;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
@@ -13,14 +14,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
-@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "users_backend_view")
 public class User {
+
     @Id
     @GeneratedValue
     private UUID id;
@@ -28,22 +31,34 @@ public class User {
     @Column(name = "username", nullable = false)
     private String username;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<GroupMember> groupMembers;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<Member> memberships = new ArrayList<>();
+
+    @ToString.Include
+    @Column(
+            name = "fetch_new_at",
+            nullable = false
+    )
+    private LocalDateTime fetchNewAt;
 
     @Column(
-        name = "created_at", 
-        nullable = false, 
-        updatable = false
-        )
+            name = "created_at",
+            nullable = false,
+            updatable = false
+    )
     private LocalDateTime createdAt;
 
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.fetchNewAt = LocalDateTime.now();
     }
 
-    public User(UUID id) {
-        this.id = id;
+    protected User() {
+    }
+
+    public User(String username) {
+        this.username = username;
     }
 }
