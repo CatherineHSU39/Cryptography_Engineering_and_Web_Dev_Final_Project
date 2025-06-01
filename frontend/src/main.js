@@ -2,5 +2,8 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
+import router from './http.js'
 
-createApp(App).mount('#app')
+const TEST_JWT = "eyJ0eXAiOiJKV1QiLCJraWQiOiJ1c2VyLWtleSIsImFsZyI6IlBTMjU2In0.eyJzdWIiOiI3Mzc5YmY2OS0zYWU1LTRmOGQtYTViYy0zZjkxM2ZlOTk0OGUiLCJpc3MiOiJodHRwOi8vYXV0aC1zZXJ2ZXI6ODA4MSIsImF1ZCI6ImttcyBiYWNrZW5kIiwidXNlcm5hbWUiOiJzdHJpbmciLCJyb2xlIjoiVVNFUiIsIjJmYV92ZXJpZmllZCI6ZmFsc2UsImlhdCI6MTc0ODc0MTY4MCwiZXhwIjoxNzQ4NzQ1MjgwfQ.X-LAjpCSi53RL_kBW2BmGTBfVkYrrSSEDbISSrZ9WA2WEitEmwLOsARd5IgpUk8kHD7YOew-GE6H6K8LDWhyTn8bv6b_xqAS7nNBTLfOMfmper1twJd-Fho4jskHxJEx6H-Q9krAqUh7DdFcIu0Pyvzxf267KFpUDZdVpaD50hLEQV5qmd6zMsgFKx6BTYRAjw5J7TeyjRMPVNNGKAhiRsvJyKQXUZd5kKQJieNvyAH_H6WTjQSuIufdJk39cL2cJkdBryyQsN_1ZcmiDwWo08PcZVoF77tFcy0jg7ZxNpANro_4MH8k1e1V_iEoeikqVEJLiJHo_DvNV1EWt1Rx0w";
+localStorage.setItem('jwt', TEST_JWT);
+createApp(App).use(router).mount('#app')
