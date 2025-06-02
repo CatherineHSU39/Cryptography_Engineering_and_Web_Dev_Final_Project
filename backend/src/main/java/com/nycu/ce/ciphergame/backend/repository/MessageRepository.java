@@ -24,9 +24,9 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     SELECT m
     FROM Message m
     WHERE m.group.id IN :groupIds
-    AND m.createdAt >= :timestamp
+    AND m.updatedAt >= :timestamp
 """)
-    Page<Message> findAllSinceCreatedAtGroupIdIn(
+    Page<Message> findAllSinceUpdatedAtGroupIdIn(
             @Param("timestamp") LocalDateTime timestamp,
             @Param("groupIds") List<UUID> groupIds,
             Pageable pageable
