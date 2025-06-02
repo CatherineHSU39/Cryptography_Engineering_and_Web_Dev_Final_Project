@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: dek
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  liquibase:
+    default-schema: dek
+    enabled: true
+    change-log: classpath:/db/changelog/master_changelog.xml
+
+  jpa:
+    hibernate:
+      ddl-auto: none # Keep as 'none' if using Liquibase for schema
+    show-sql: false # Disable SQL printing in production
+    properties:
+      hibernate:
+        format_sql: false # Also disable formatted output
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI}
