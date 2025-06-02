@@ -24,6 +24,13 @@ public class UserService {
         return user;
     }
 
+    public User getOrCreateUserById(UserId userId) {
+        User user = userRepository.findById(userId.toUUID())
+                .orElseGet(() -> new User(userId.toUUID()));
+
+        return user;
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }

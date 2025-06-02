@@ -73,12 +73,11 @@ public class MyMessageController {
     }
 
     @PutMapping("/new")
-    public ResponseEntity<Void> setNewMessagesTimstemp(
+    public ResponseEntity<Void> syncUser(
             @AuthenticationPrincipal Jwt jwt
     ) {
-        UserId senderId = UserId.fromString(jwt.getSubject());
-        myMessageService.setNewMessagesTimstemp(
-                senderId
+        myMessageService.syncUser(
+                jwt
         );
         return ResponseEntity.ok().build();
     }
