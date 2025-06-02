@@ -1,38 +1,30 @@
-<!-- src/layouts/ChatLayout.vue -->
+<!-- src/components/ChatLayout.vue -->
+<script setup>
+import Sidebar from '@/components/Sidebar.vue';
+import ChatWindow from '@/components/ChatWindow.vue';
+import GroupOverlay from '@/components/GroupOverlay.vue';
+import { useChatStore } from '@/stores/useChatStore';
+
+const chat = useChatStore();
+</script>
+
 <template>
-  <div class="flex h-full w-full bg-gray-100">
-    <!-- 左半邊 Sidebar -->
-    <div class="w-1/4 h-full border-r border-gray-300">
-      <Sidebar
-        :groups="groups"
-        :selectedGroupId="selectedGroupId"
-        @selectGroup="id => emit('onSelectGroup', id)"
-      />
+  <!-- Mobile layout: vertical stack -->
+  <div class="flex flex-col sm:flex-row h-full w-full bg-[var(--color-background-mute)] relative">
+    <!-- Sidebar: full-width on mobile, 1/4 width on desktop -->
+    <div class="w-full sm:w-1/4 h-1/2 sm:h-full border-b sm:border-r border-[var(--color-border)]">
+      <Sidebar />
     </div>
 
-    <!-- 右半邊 ChatWindow -->
+    <!-- ChatWindow: full-width on mobile, 3/4 width on desktop -->
     <div class="flex-1 h-full">
-      <ChatWindow
-        :group="selectedGroupObject"
-        :messages="messages"
-        @sendMessage="text => emit('onSendMessage', text)"
-      />
+      <ChatWindow />
     </div>
+  </div>
+
+  <!-- Group overlay outside main flex layout -->
+  <div>
+    <GroupOverlay />
   </div>
 </template>
 
-<script setup>
-import Sidebar from '@/components/Sidebar.vue'
-import ChatWindow from '@/components/ChatWindow.vue'
-
-// props: 從 Chat.vue 傳下來
-const props = defineProps({
-  groups:             { type: Array, required: true },
-  selectedGroupId:    { type: String, default: null },
-  selectedGroupObject:{ type: Object, default: null },
-  messages:           { type: Array, default: () => [] }
-})
-
-// 這一層要往上 emit 兩個事件：onSelectGroup 與 onSendMessage
-const emit = defineEmits(['onSelectGroup', 'onSendMessage'])
-</script>

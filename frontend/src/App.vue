@@ -1,81 +1,54 @@
 <template>
-  <div class="flex flex-col h-screen">
-    <!-- ===== Header ===== -->
-    <header class="bg-gray-200">
+  <div class="flex flex-col h-screen bg-[var(--color-background)]">
+    <header class="bg-[var(--color-background-soft)]">
       <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-        <!-- 應用名稱 -->
-        <div class="text-xl font-semibold">My Chat App</div>
+        <div class="text-xl font-semibold text-[var(--color-heading)]">
+          My Chat App
+        </div>
 
-        <!-- 導航連結容器：使用 flex + space-x-4 來自動在連結間加水平間距 -->
         <nav class="flex items-center space-x-4">
-          <!-- Register 與 Login 永遠顯示 -->
-          <router-link
-            to="/register"
-            class="text-green-600 hover:underline"
-          >
-            Register
-          </router-link>
-          <router-link
-            to="/login"
-            class="text-blue-600 hover:underline"
-          >
-            Login
-          </router-link>
+          <template v-if="!isLoggedIn">
+            <router-link to="/register" class="text-[var(--color-link-primary)] hover:underline">Register</router-link>
+            <router-link to="/login" class="text-[var(--color-link-primary)] hover:underline">Login</router-link>
+          </template>
 
-          <!-- 只有登入後才顯示 Chat 和 Profile -->
-          <template v-if="isLoggedIn">
-            <router-link
-              to="/chat"
-              class="text-gray-800 hover:underline"
-            >
-              Chat
-            </router-link>
-            <router-link
-              to="/profile"
-              class="text-gray-800 hover:underline"
-            >
-              Profile
-            </router-link>
-            <!-- 登出按鈕 -->
-            <button
-              @click="logout"
-              class="text-red-600 hover:underline"
-            >
-              Logout
+          <template v-else>
+            <button @click="toggleProfile" class="text-[var(--color-text)] hover:underline">
+              {{ profile.currentUsername || 'Profile' }}
             </button>
           </template>
         </nav>
       </div>
     </header>
 
-    <!-- ===== Main ===== -->
-    <main class="flex-1 w-full bg-gray-100 overflow-auto">
+    <main class="flex-1 w-full bg-[var(--color-background-mute)] overflow-auto">
       <router-view />
     </main>
+
+    <!-- Profile Modal -->
+    <ProfileOverlay
+      :visible="showProfile"
+      :username="profile.currentUsername"
+      :userId="profile.currentUserId"
+      @close="showProfile = false"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import ProfileOverlay from '@/components/ProfileOverlay.vue';
+import { useProfileStore } from '@/stores/useProfileStore';
 
-// 1. 管理是否已登入 (由 localStorage 拿 JWT 來判斷)
-const router = useRouter()
-const token = ref(null)
+const router = useRouter();
+const profile = useProfileStore();
 
-onMounted(() => {
-  token.value = localStorage.getItem('jwt')
-})
+const showProfile = ref(false);
 
-const isLoggedIn = computed(() => {
-  return !!token.value
-})
+const isLoggedIn = computed(() => profile.isLoggedIn);
 
-// 2. 登出函式：清除 JWT，導回 /login
-function logout() {
-  localStorage.removeItem('jwt')
-  localStorage.removeItem('email')
-  token.value = null
-  router.push('/login')
+function toggleProfile() {
+  showProfile.value = !showProfile.value;
 }
 </script>

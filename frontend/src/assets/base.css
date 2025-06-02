@@ -1,7 +1,7 @@
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
   --vt-c-white: #ffffff;
-  --vt-c-white-soft: #f8f8f8;
+  --vt-c-white-soft: #d4d4d4;
   --vt-c-white-mute: #f2f2f2;
 
   --vt-c-black: #181818;
@@ -23,32 +23,61 @@
 
 /* semantic color variables for this project */
 :root {
-  --color-background: var(--vt-c-white);
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
+  --color-background: #ffffff;               /* white */
+  --color-background-soft: #d4d4d4;          /* gray-300 */
+  --color-background-mute: #f2f2f2;          /* gray-100 */
 
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
+  --color-border: rgba(60, 60, 60, 0.12);     /* divider light */
+  --color-border-hover: rgba(60, 60, 60, 0.29);
 
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
+  --color-heading: #2c3e50;                  /* indigo */
+  --color-text: #2c3e50;
+
+  --color-primary: #22c55e;                  /* green-500 */
+  --color-primary-hover: #16a34a;            /* green-600 */
+  --color-accent: #4ade80;                   /* green-300 */
+
+  --color-link-primary: #2563eb;             /* blue-600 */
+  --color-link-muted: #3b82f6;               /* blue-500 */
+
+  --color-success: #16a34a;                  /* green-600 */
+  --color-danger: #ef4444;                   /* red-500 */
+  --color-danger-hover: #dc2626;             /* red-600 */
+
+  --color-warning: #facc15;                  /* yellow-400 */
+  --color-warning-hover: #eab308;            /* yellow-500 */
 
   --section-gap: 160px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
+    --color-background: #181818;             /* black */
+    --color-background-soft: #222222;        /* black-soft */
+    --color-background-mute: #282828;        /* black-mute */
 
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
+    --color-border: rgba(84, 84, 84, 0.48);   /* divider dark */
+    --color-border-hover: rgba(84, 84, 84, 0.65);
 
-    --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
+    --color-heading: #d7e2e6;
+    --color-text: rgba(235, 235, 235, 0.64);
+
+    --color-primary: #22c55e;                /* green-500 */
+    --color-primary-hover: #16a34a;          /* green-600 */
+    --color-accent: #439762;                 /* green-300 (adjusted for contrast) */
+
+    --color-link-primary: rgb(44, 106, 181);           /* blue-400 */
+    --color-link-muted: #93c5fd;             /* blue-300 */
+
+    --color-success: #22c55e;                /* green-500 */
+    --color-danger: #f87171;                 /* red-400 */
+    --color-danger-hover: #ef4444;           /* red-500 */
+
+    --color-warning: #fde047;                /* yellow-300 */
+    --color-warning-hover: #facc15;          /* yellow-400 */
   }
 }
+
 
 *,
 *::before,
