@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nycu.ce.ciphergame.auth.dto.UserRegisterRequest;
+import com.nycu.ce.ciphergame.auth.dto.UserSigninResponse;
+import com.nycu.ce.ciphergame.auth.entity.User;
+import com.nycu.ce.ciphergame.auth.security.CustomUserDetails;
 import com.nycu.ce.ciphergame.auth.service.GAService;
 import com.nycu.ce.ciphergame.auth.service.UserService;
 
@@ -34,6 +37,19 @@ public class UserController {
     ) {
         userService.createUser(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<UserSigninResponse> updateuser(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody UserRegisterRequest request
+    ) {
+        UserSigninResponse response = userService.updateUser(
+                jwt,
+                request.getUsername(),
+                request.getPassword()
+        );
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/me/2fa")

@@ -1,47 +1,54 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <div class="flex flex-col h-screen bg-[var(--color-background)]">
+    <header class="bg-[var(--color-background-soft)]">
+      <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="text-xl font-semibold text-[var(--color-heading)]">
+          My Chat App
+        </div>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
+        <nav class="flex items-center space-x-4">
+          <template v-if="!isLoggedIn">
+            <router-link to="/register" class="text-[var(--color-link-primary)] hover:underline">Register</router-link>
+            <router-link to="/login" class="text-[var(--color-link-primary)] hover:underline">Login</router-link>
+          </template>
 
-  <main>
-    <TheWelcome />
-  </main>
+          <template v-else>
+            <button @click="toggleProfile" class="text-[var(--color-text)] hover:underline">
+              {{ profile.currentUsername || 'Profile' }}
+            </button>
+          </template>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-1 w-full bg-[var(--color-background-mute)] overflow-auto">
+      <router-view />
+    </main>
+
+    <!-- Profile Modal -->
+    <ProfileOverlay
+      :visible="showProfile"
+      :username="profile.currentUsername"
+      :userId="profile.currentUserId"
+      @close="showProfile = false"
+    />
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import ProfileOverlay from '@/components/ProfileOverlay.vue';
+import { useProfileStore } from '@/stores/useProfileStore';
+
+const router = useRouter();
+const profile = useProfileStore();
+
+const showProfile = ref(false);
+
+const isLoggedIn = computed(() => profile.isLoggedIn);
+
+function toggleProfile() {
+  showProfile.value = !showProfile.value;
 }
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+</script>

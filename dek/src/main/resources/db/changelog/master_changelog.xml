@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro
+        http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+
+    <changeSet id="1" author="Ca">
+        <createTable tableName="encrypted_deks">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="owner_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cmk_version" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="encrypted_dek" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+        </createTable>
+    </changeSet>
+
+    <!-- <createTable id="2" tableName="cmks">
+        <column name="id" type="UUID">
+            <constraints primaryKey="true" primaryKeyName="pk_cmks" nullable="false"/>
+        </column>
+        <column name="user_id" type="UUID">
+            <constraints nullable="false"/>
+        </column>
+        <column name="version" type="INTEGER">
+            <constraints nullable="false"/>
+        </column>
+        <column name="key_material" type="BYTEA">
+            <constraints nullable="false"/>
+        </column>
+        <column name="active" type="BOOLEAN"/>
+        <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+    </createTable>
+
+    <changeSet id="3" author="Ca">
+        <createTable tableName="kms_audit_log">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="actor_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_id" type="UUID"/>
+            <column name="timestamp" type="TIMESTAMP" defaultValueComputed="now()"/>
+            <column name="hash" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="prev_hash" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet> -->
+
+</databaseChangeLog>

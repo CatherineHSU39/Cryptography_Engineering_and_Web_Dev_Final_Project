@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: frontend
     working_dir: /app
-    command: npm run dev -- --host
+    command: npm run dev -- --host 0.0.0.0
     ports:
       - "3000:3000"
     volumes:

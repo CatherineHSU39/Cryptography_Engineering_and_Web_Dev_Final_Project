@@ -6,6 +6,13 @@ CREATE TABLE IF NOT EXISTS users (
     encrypted_totp_secret VARCHAR,
     role VARCHAR NOT NULL CHECK (role IN ('USER', 'ADMIN', 'AUDITOR')),
     user_pub_pem VARCHAR,
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
+-- Backend Users Table
+CREATE TABLE IF NOT EXISTS backend_users (
+    id UUID PRIMARY KEY NOT NULL,
+    username VARCHAR NOT NULL UNIQUE,
     fetch_new_at TIMESTAMP NOT NULL DEFAULT now(),
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
@@ -20,7 +27,7 @@ CREATE TABLE IF NOT EXISTS groups (
 -- Messages Table
 CREATE TABLE IF NOT EXISTS messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    sender_id UUID NOT NULL REFERENCES users(id),
+    sender_id UUID NOT NULL REFERENCES backend_users(id),
     group_id UUID NOT NULL REFERENCES groups(id),
     encrypted_message VARCHAR NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
@@ -30,7 +37,7 @@ CREATE TABLE IF NOT EXISTS messages (
 -- GroupMembers Table
 CREATE TABLE IF NOT EXISTS group_members (
     group_id UUID NOT NULL REFERENCES groups(id),
-    user_id UUID NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES backend_users(id),
     read_at TIMESTAMP NOT NULL DEFAULT now(),
     joined_at TIMESTAMP NOT NULL DEFAULT now(),
     PRIMARY KEY (group_id, user_id)
@@ -48,7 +55,7 @@ CREATE TABLE IF NOT EXISTS encrypted_deks (
 -- CMKs Table
 CREATE TABLE IF NOT EXISTS cmks (
     id UUID NOT NULL DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES backend_users(id),
     version INTEGER NOT NULL CHECK (version >= 1),
     key_material BYTEA NOT NULL,
     active BOOLEAN,
@@ -59,7 +66,7 @@ CREATE TABLE IF NOT EXISTS cmks (
 -- AuditLog Tables
 CREATE TABLE IF NOT EXISTS kms_audit_log (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    actor_id UUID NOT NULL REFERENCES users(id),
+    actor_id UUID NOT NULL REFERENCES backend_users(id),
     action VARCHAR NOT NULL,
     target_id UUID,
     timestamp TIMESTAMP NOT NULL DEFAULT now(),

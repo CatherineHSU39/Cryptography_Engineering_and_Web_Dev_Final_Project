@@ -43,6 +43,10 @@ dev-kms:
 dev-down: ## Stop dev environment
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml down -v
 
+dev-init: ## Start dev environment and initialize DB roles
+	make dev
+	make init-db MODE=development
+
 dev-frontend-init: ## Start frontend dev environment and initialize DB roles
 	make dev-frontend
 	make init-db MODE=development
