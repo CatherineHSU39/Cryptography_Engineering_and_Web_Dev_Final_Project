@@ -191,7 +191,7 @@ public class MyGroupController {
         myMemberService.markMessageStatus(
                 senderId,
                 groupId,
-                messageStatusRequest.getTimestemp()
+                messageStatusRequest.getTimestamp()
         );
 
         return ResponseEntity.ok().build();

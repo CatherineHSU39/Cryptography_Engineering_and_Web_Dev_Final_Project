@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro
+        http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+
+    <changeSet id="1" author="Ca">
+        <createTable tableName="backend_users">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="fetch_new_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="Ca">
+        <createTable tableName="groups">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="Ca">
+        <createTable tableName="messages">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="sender_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="group_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="encrypted_message" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="4" author="Ca">
+        <createTable tableName="group_members">
+            <column name="group_id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_group_members"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_group_members"/>
+            </column>
+            <column name="read_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+            <column name="joined_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="5" author="Ca">
+        <createTable tableName="backend_audit_log">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="column_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_value" type="TEXT"/>
+            <column name="new_value" type="TEXT"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

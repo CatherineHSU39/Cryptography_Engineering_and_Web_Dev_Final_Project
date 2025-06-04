@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: frontend
+    working_dir: /app
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost
+      
+  backend:
+    ports:
+      - "8080:8080"
+  dek:
+    ports:
+      - "8082:8082"
+      
+  auth-server:
+    ports:
+      - "8081:8081"

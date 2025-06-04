@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import com.nycu.ce.ciphergame.backend.entity.Message;
@@ -50,7 +51,7 @@ public class MyMessageService {
             return Page.empty(pageable);
         }
 
-        Page<Message> page = messageRepository.findAllSinceCreatedAtGroupIdIn(
+        Page<Message> page = messageRepository.findAllSinceUpdatedAtGroupIdIn(
                 fetchNewAt,
                 groupIds,
                 pageable
@@ -61,6 +62,20 @@ public class MyMessageService {
                 .ifPresent(user::setFetchNewAt);
 
         return page;
+    }
+
+    public Void syncUser(
+            Jwt jwt
+    ) {
+        User user = userService.getOrCreateUserById(
+                UserId.fromString(jwt.getSubject())
+        );
+
+        user.setUsername(jwt.getClaim("username"));
+        user.setFetchNewAt(LocalDateTime.now());
+
+        userService.updateUser(user);
+        return null;
     }
 
     public List<Message> createMyMessage(
@@ -93,15 +108,18 @@ public class MyMessageService {
 
     public Void deleteMyMessage(UserId userId, MessageId messageId) {
         Message message = messageService.getMessageById(messageId);
-        UUID senderId = message.getSender().getId();
-        this.validateSender(userId, UserId.fromUUID(senderId));
+        UUID senderUUID = message.getSender().getId();
+        UserId senderId = UserId.fromUUID(senderUUID);
+
+        validateSender(userId, senderId);
+
         messageRepository.delete(message);
         return null;
     }
 
     void validateSender(UserId userId, UserId senderId) {
-        if (senderId != userId) {
-            throw new RuntimeException("Sender invalid");
+        if (!senderId.equals(userId)) {
+            throw new RuntimeException("User is not the sender of this message.");
         }
     }
 }

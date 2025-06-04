@@ -72,6 +72,16 @@ public class MyMessageController {
         return ResponseEntity.ok(messageMapper.toDTO(messages));
     }
 
+    @PutMapping("/new")
+    public ResponseEntity<Void> syncUser(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        myMessageService.syncUser(
+                jwt
+        );
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/{messageId}")
     public ResponseEntity<MessageResponse> updateMessage(
             @AuthenticationPrincipal Jwt jwt,

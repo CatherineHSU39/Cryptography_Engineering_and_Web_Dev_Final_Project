@@ -6,9 +6,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.nycu.ce.ciphergame.backend.repository.UserRepository;
+
 import com.nycu.ce.ciphergame.backend.entity.User;
 import com.nycu.ce.ciphergame.backend.entity.id.UserId;
+import com.nycu.ce.ciphergame.backend.repository.UserRepository;
 
 @Service
 public class UserService {
@@ -19,6 +20,13 @@ public class UserService {
     public User getUserById(UserId userId) {
         User user = userRepository.findById(userId.toUUID())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return user;
+    }
+
+    public User getOrCreateUserById(UserId userId) {
+        User user = userRepository.findById(userId.toUUID())
+                .orElseGet(() -> new User(userId.toUUID()));
 
         return user;
     }
@@ -38,6 +46,11 @@ public class UserService {
 
         user.setUsername(username);
 
+        userRepository.save(user);
+        return user;
+    }
+
+    public User updateUser(User user) {
         userRepository.save(user);
         return user;
     }

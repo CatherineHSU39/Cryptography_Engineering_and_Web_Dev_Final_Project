@@ -9,11 +9,12 @@ defineProps({
 
 <template>
   <div class="greetings">
-    <h1 class="green">{{ msg }}</h1>
-    <h3>
+    <h1 class="text-[var(--color-primary)]">{{ msg }}</h1>
+    <h3 class="text-[var(--color-text)]">
       You’ve successfully created a project with
-      <a href="https://vite.dev/" target="_blank" rel="noopener">Vite</a> +
-      <a href="https://vuejs.org/" target="_blank" rel="noopener">Vue 3</a>.
+      <a href="https://vite.dev/" target="_blank" rel="noopener" class="text-[var(--color-link-muted)] hover:underline">Vite</a>
+      +
+      <a href="https://vuejs.org/" target="_blank" rel="noopener" class="text-[var(--color-link-muted)] hover:underline">Vue 3</a>.
     </h3>
   </div>
 </template>

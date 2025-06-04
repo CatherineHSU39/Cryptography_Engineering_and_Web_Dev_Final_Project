@@ -15,6 +15,8 @@ public class MemberMapper {
         return MemberResponse.builder()
                 .userId(member.getUser().getId())
                 .username(member.getUser().getUsername())
+                .joinAt(member.getJoinedAt())
+                .readAt(member.getReadAt())
                 .build();
     }
 

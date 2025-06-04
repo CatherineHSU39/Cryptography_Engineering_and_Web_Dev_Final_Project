@@ -2,7 +2,7 @@ package com.nycu.ce.ciphergame.backend.dto.message;
 
 import java.time.LocalDateTime;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MessageStatusRequest {
 
-    @NotEmpty(message = "timestemp of last read must be provided")
-    private LocalDateTime timestemp;
+    @NotNull(message = "timestemp of last read must be provided")
+    private LocalDateTime timestamp;
 }

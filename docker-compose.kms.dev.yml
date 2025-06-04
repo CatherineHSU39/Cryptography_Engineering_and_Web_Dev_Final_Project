@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  backend:
+    ports:
+      - "8080:8080"
+  dek:
+    ports:
+      - "8082:8082"
+      
+  auth-server:
+    ports:
+      - "8081:8081"
+
+  kms:
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./kms:/app
+    working_dir: /app
