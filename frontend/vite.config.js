@@ -31,6 +31,18 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/auth/, ""),
       },
+      "/dek": {
+        target: "http://dek:8082",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/dek/, ""),
+      },
+      "/kms": {
+        target: "http://kms:8000",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/kms/, ""),
+      },
     },
   },
 });

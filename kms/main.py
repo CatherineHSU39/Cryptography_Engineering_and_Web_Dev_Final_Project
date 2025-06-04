@@ -71,11 +71,11 @@ class DekStoreItem(BaseModel):
     ownerId: str
 # ---------------------------- API 實作 ----------------------------
 
-@app.get("/kms/health")
+@app.get("/health")
 def health_check():
     return {"status": "KMS is running"}
 
-@app.post("/kms/register")
+@app.post("/register")
 def register_user(req: RegisterRequest, valid_token: str = Depends(verify_jwt)):
     user_id = valid_token["sub"]
     if user_id in kms_state.user_rsa_keys:
@@ -85,7 +85,7 @@ def register_user(req: RegisterRequest, valid_token: str = Depends(verify_jwt)):
     kms_state.log(f"Registered user {user_id}")
     return {"status": "Registered"}
 
-@app.post("/kms/generate-data-key")
+@app.post("/generate-data-key")
 def generate_data_key(req: GenerateDataKeyRequest, valid_token: str = Depends(verify_jwt)):
     key = os.urandom(32)  # symmetric key
     result = {}
@@ -99,7 +99,7 @@ def generate_data_key(req: GenerateDataKeyRequest, valid_token: str = Depends(ve
         "encrypted_deks": result
     }
 
-@app.post("/kms/decrypt-data-key")
+@app.post("/decrypt-data-key")
 def decrypt_data_key(req: DecryptDataKeyRequest, valid_token: str = Depends(verify_jwt)):
     user_id = valid_token["sub"]
     if user_id not in kms_state.user_keys or user_id not in kms_state.user_rsa_keys:
@@ -120,16 +120,16 @@ def decrypt_data_key(req: DecryptDataKeyRequest, valid_token: str = Depends(veri
     kms_state.log(f"User {user_id} decrypted data keys")
     return {"encrypted_keys": base64.b64encode(encrypted).decode()}
 
-@app.post("/kms/rotate-cmk")
+@app.post("/rotate-cmk")
 def rotate_cmk():
     kms_state.rotate_all_cmk()
     return {"status": "CMKs rotated"}
 
-@app.get("/kms/audit-log")
+@app.get("/audit-log")
 def get_audit_log():
     return {"log": kms_state.audit_log}
 
-@app.get("/kms/log-integrity")
+@app.get("/log-integrity")
 def verify_log_integrity():
     prev = b'\x00' * 32
     for entry in kms_state.audit_log:
@@ -142,7 +142,7 @@ def verify_log_integrity():
         prev = expected_hash
     return {"status": "OK", "message": "All logs are intact"}
 
-@app.post("/kms/deks")
+@app.post("/deks")
 def store_deks(deks: List[DekStoreItem], valid_token: str = Depends(verify_jwt)):
     for item in deks:
         dek_id = base64.b64encode(os.urandom(16)).decode()
@@ -153,7 +153,7 @@ def store_deks(deks: List[DekStoreItem], valid_token: str = Depends(verify_jwt))
     kms_state.log(f"Stored {len(deks)} deks")
     return {"status": "ok"}
 
-@app.get("/kms/deks")
+@app.get("/deks")
 def get_deks(dek_ids: List[str] = [], valid_token: str = Depends(verify_jwt)):
     user_id = valid_token["sub"]
     result = {}

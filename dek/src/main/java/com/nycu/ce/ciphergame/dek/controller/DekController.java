@@ -26,7 +26,7 @@ import com.nycu.ce.ciphergame.dek.service.DekService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/deks")
+@RequestMapping
 public class DekController {
 
     @Autowired
