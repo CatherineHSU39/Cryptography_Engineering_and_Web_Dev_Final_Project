@@ -5,4 +5,7 @@ passlib[bcrypt]
 sqlalchemy
 psycopg2-binary
 pydantic
-pqcrypto
+pypqc
+cryptography
+pycryptodome
+httpx

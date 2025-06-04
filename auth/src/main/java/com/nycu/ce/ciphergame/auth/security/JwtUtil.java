@@ -42,7 +42,7 @@ public class JwtUtil {
                 .claim("service_name", serviceName)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(serviceKeyPair.getPrivate(), SignatureAlgorithm.PS256)
+                .signWith(serviceKeyPair.getPrivate(), SignatureAlgorithm.RS256)
                 .compact();
     }
 
@@ -66,7 +66,7 @@ public class JwtUtil {
                 .claim("2fa_verified", is2faVerified)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(userKeyPair.getPrivate(), SignatureAlgorithm.PS256)
+                .signWith(userKeyPair.getPrivate(), SignatureAlgorithm.RS256)
                 .compact();
     }
 }

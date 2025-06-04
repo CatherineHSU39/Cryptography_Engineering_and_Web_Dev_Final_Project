@@ -38,7 +38,7 @@ public class JwksController {
         List<JWK> jwks = allKeys.entrySet().stream()
                 .map(entry -> new RSAKey.Builder((RSAPublicKey) entry.getValue().getPublic())
                 .keyID(entry.getKey())
-                .algorithm(JWSAlgorithm.PS256)
+                .algorithm(JWSAlgorithm.RS256)
                 .keyUse(KeyUse.SIGNATURE)
                 .build())
                 .collect(Collectors.toList());
