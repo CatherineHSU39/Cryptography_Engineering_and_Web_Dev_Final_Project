@@ -1,4 +1,4 @@
-// src/logic/useCrypto.js
+// src/logic/useKey.js
 
 const DB_NAME = "cryptoKeysDB";
 const STORE_NAME = "keys";

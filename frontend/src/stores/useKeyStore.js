@@ -1,4 +1,4 @@
-// src/stores/useCryptoStore.js
+// src/stores/useKeyStore.js
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import {
@@ -7,9 +7,9 @@ import {
   loadFromIndexedDB,
   toPem,
   KEY_ID,
-} from "@/logic/useCrypto";
+} from "@/logic/useKey";
 
-export const useCryptoStore = defineStore("crypto", () => {
+export const useKeyStore = defineStore("key", () => {
   const aesKey = ref(null);
 
   async function initRSAPem(password) {
