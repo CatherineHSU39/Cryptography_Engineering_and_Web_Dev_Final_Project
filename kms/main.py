@@ -1,8 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException, Header
+from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
 from pqc.kem import kyber512 as kemalg
 from typing import List, Dict
-from jose import jwt, JWTError
 import base64
 import os
 import time
@@ -11,7 +10,12 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 import json
 
-app = FastAPI()
+from jwt_auth import verify_jwt
+from custom_swagger import custom_openapi
+
+app = FastAPI(title="KMS API", version="1.0.0")
+
+app.openapi = lambda: custom_openapi(app)
 
 # ---------------------------- 狀態管理 ----------------------------
 class KMSState:
@@ -65,21 +69,6 @@ class DecryptDataKeyRequest(BaseModel):
 class DekStoreItem(BaseModel):
     Dek: str
     ownerId: str
-
-# ---------------------------- 工具函數 ----------------------------
-SECRET = "super-secret"
-ALGORITHM = "RS256"
-
-def get_user_id_from_jwt(authorization: str = Header(...)) -> str:
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Invalid Authorization header")
-    token = authorization.removeprefix("Bearer ").strip()
-    try:
-        payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
-        return payload.get("user_id")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
 # ---------------------------- API 實作 ----------------------------
 
 @app.get("/kms/health")
@@ -87,7 +76,8 @@ def health_check():
     return {"status": "KMS is running"}
 
 @app.post("/kms/register")
-def register_user(req: RegisterRequest, user_id: str = Depends(get_user_id_from_jwt)):
+def register_user(req: RegisterRequest, valid_token: str = Depends(verify_jwt)):
+    user_id = valid_token["sub"]
     if user_id in kms_state.user_rsa_keys:
         raise HTTPException(status_code=400, detail="User already registered")
     kms_state.user_rsa_keys[user_id] = req.rsa_public_key.encode()
@@ -96,7 +86,7 @@ def register_user(req: RegisterRequest, user_id: str = Depends(get_user_id_from_
     return {"status": "Registered"}
 
 @app.post("/kms/generate-data-key")
-def generate_data_key(req: GenerateDataKeyRequest):
+def generate_data_key(req: GenerateDataKeyRequest, valid_token: str = Depends(verify_jwt)):
     key = os.urandom(32)  # symmetric key
     result = {}
     for user_id in req.user_ids:
@@ -110,7 +100,8 @@ def generate_data_key(req: GenerateDataKeyRequest):
     }
 
 @app.post("/kms/decrypt-data-key")
-def decrypt_data_key(req: DecryptDataKeyRequest, user_id: str = Depends(get_user_id_from_jwt)):
+def decrypt_data_key(req: DecryptDataKeyRequest, valid_token: str = Depends(verify_jwt)):
+    user_id = valid_token["sub"]
     if user_id not in kms_state.user_keys or user_id not in kms_state.user_rsa_keys:
         raise HTTPException(status_code=404, detail="User not registered or missing RSA key")
     _, sk = kms_state.get_or_create_user_cmk(user_id)
@@ -152,7 +143,7 @@ def verify_log_integrity():
     return {"status": "OK", "message": "All logs are intact"}
 
 @app.post("/kms/deks")
-def store_deks(deks: List[DekStoreItem]):
+def store_deks(deks: List[DekStoreItem], valid_token: str = Depends(verify_jwt)):
     for item in deks:
         dek_id = base64.b64encode(os.urandom(16)).decode()
         kms_state.stored_deks[dek_id] = {
@@ -163,7 +154,8 @@ def store_deks(deks: List[DekStoreItem]):
     return {"status": "ok"}
 
 @app.get("/kms/deks")
-def get_deks(dek_ids: List[str] = [], user_id: str = Depends(get_user_id_from_jwt)):
+def get_deks(dek_ids: List[str] = [], valid_token: str = Depends(verify_jwt)):
+    user_id = valid_token["sub"]
     result = {}
     for dek_id in dek_ids:
         dek_entry = kms_state.stored_deks.get(dek_id)
