@@ -54,6 +54,10 @@ export const useEncryptionStore = defineStore("encryption", () => {
     try {
       console.log(`[KMS] Retrieved ${encrypted_deks.length} encrypted DEKs.`);
       console.log("[KMS] Encrypted DEKs:", encrypted_deks);
+      if (encrypted_deks.length === 0) {
+        console.log("[KMS] No new DEKs to cache.");
+        return;
+      }
 
       const keyInfo = await KMSAPI.decryptDek(
         current_kem_alg.value,
