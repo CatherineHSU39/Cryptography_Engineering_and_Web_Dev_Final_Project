@@ -28,7 +28,7 @@ public interface DekRepository extends JpaRepository<Dek, UUID> {
     SELECT d
     FROM Dek d
     WHERE d.ownerId = :ownerId
-    AND d.createdAt >= :timestamp
+    AND d.createdAt > :timestamp
 """)
     Page<Dek> findAllByOwnerIdSinceCreatedAt(
             @Param("timestamp") LocalDateTime timestamp,

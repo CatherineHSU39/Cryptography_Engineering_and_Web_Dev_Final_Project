@@ -50,6 +50,8 @@ public class DekService {
                 .map(Dek::getCreatedAt)
                 .ifPresent(user::setFetchNewAt);
 
+        userService.updateUser(user);
+
         return page;
     }
 
