@@ -30,6 +30,33 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="2" author="Ca">
+        <!-- Add 'nonce' column -->
+        <addColumn tableName="encrypted_deks">
+            <column name="nonce" type="BYTEA"/>
+        </addColumn>
+
+        <!-- Add 'aad' column -->
+        <addColumn tableName="encrypted_deks">
+            <column name="aad" type="TEXT"/>
+        </addColumn>
+
+        <!-- Change 'encrypted_dek' from TEXT to BYTEA -->
+        <modifyDataType tableName="encrypted_deks"
+                        columnName="encrypted_dek"
+                        newDataType="BYTEA"/>
+
+        <createTable tableName="dek_users">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="fetch_new_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+        </createTable>
+    </changeSet>
+
+
+
     <!-- <createTable id="2" tableName="cmks">
         <column name="id" type="UUID">
             <constraints primaryKey="true" primaryKeyName="pk_cmks" nullable="false"/>

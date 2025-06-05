@@ -4,16 +4,25 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import ChatLayout from '@/components/ChatLayout.vue';
 import { useChatStore } from '@/stores/useChatStore';
 import { useProfileStore } from '@/stores/useProfileStore';
+import { useEncryptionStore } from '@/stores/useEncryptionStore';
+import { useRSAKEMStore } from '@/stores/useRSAKEMStore';
 
 const chat = useChatStore();
 const profile = useProfileStore();
+const rsakem = useRSAKEMStore();
+const encryption = useEncryptionStore();
 const isLoadingGroups = ref(true);
 
-let pollInterval = null;
+let pollInterval = {};
 
 onMounted(async () => {
   try {
-    await chat.syncGroupList();
+    await Promise.all([
+      encryption.init(),
+      chat.syncMessagePage(),
+      encryption.syncDekMap(),
+      chat.syncGroupList()
+    ]);
     await chat.getAvailableGroups();
     console.log("Initialized chat");
   } catch (err) {
@@ -22,21 +31,26 @@ onMounted(async () => {
   }
   isLoadingGroups.value = false;
 
-  // 🟢 Start polling new messages
-  pollInterval = setInterval(async () => {
-    await chat.getNewMessages();
-  }, 2000);
+  // 🟢 Start polling new messages (commented out for now)
+  pollInterval.getMessages = setInterval(chat.getNewMessages, 2000);
+  pollInterval.syncGroups = setInterval(chat.syncGroupList, 10000);
+  pollInterval.syncDeks = setInterval(encryption.getNewDeks, 10000);
 
-  setInterval(async () => {
-    await chat.syncGroupList();
-  }, 10000);
+  // One-time DEK sync
+  try {
+    await encryption.getNewDeks();
+  } catch (err) {
+    console.warn("getNewDeks failed:", err);
+  }
 });
 
 onUnmounted(() => {
-  // 🔴 Cleanup to prevent memory leaks
-  clearInterval(pollInterval);
+  clearInterval(pollInterval.getMessages);
+  clearInterval(pollInterval.syncGroups);
+  clearInterval(pollInterval.syncDeks);
 });
 </script>
+
 
 <template>
   <div class="h-full w-full">

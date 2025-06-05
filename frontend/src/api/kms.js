@@ -1,7 +1,11 @@
 const KMS_BASE_URL = "/kms";
 
-function getHeaders() {
-  return { "Content-Type": "application/json" };
+function getAuthHeaders() {
+  const token = localStorage.getItem("jwt");
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
 }
 
 async function handleResponse(response) {
@@ -17,11 +21,18 @@ async function handleResponse(response) {
 }
 
 export const KMSAPI = {
-  register: async (rsa_public_key) => {
+  getRegStatus: async () => {
+    const res = await fetch(`${KMS_BASE_URL}/register/status`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(res);
+  },
+
+  register: async (kyber_public_key, rsa_public_key) => {
     const res = await fetch(`${KMS_BASE_URL}/register`, {
       method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify({ rsa_public_key }),
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ kyber_public_key, rsa_public_key }),
     });
     return handleResponse(res);
   },
@@ -29,17 +40,17 @@ export const KMSAPI = {
   genNewDek: async (user_ids) => {
     const res = await fetch(`${KMS_BASE_URL}/generate-data-key`, {
       method: "POST",
-      headers: getHeaders(),
+      headers: getAuthHeaders(),
       body: JSON.stringify({ user_ids }),
     });
     return handleResponse(res);
   },
 
-  decryptDek: async (encrypted_deks) => {
+  decryptDek: async (kem_alg, encrypted_deks) => {
     const res = await fetch(`${KMS_BASE_URL}/decrypt-data-key`, {
       method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify({ encrypted_deks }),
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ kem_alg, encrypted_deks }),
     });
     return handleResponse(res);
   },

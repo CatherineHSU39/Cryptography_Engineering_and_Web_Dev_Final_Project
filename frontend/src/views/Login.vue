@@ -53,16 +53,24 @@
 import { ref } from 'vue';
 import { useRouter } from "vue-router";
 import { useProfileStore } from '@/stores/useProfileStore';
+import { useEncryptionStore } from '@/stores/useEncryptionStore';
+import { useMLKEMStore } from '@/stores/useMLKEMStore';
+import { useRSAKEMStore } from '@/stores/useRSAKEMStore';
 
 const username = ref('');
 const password = ref('');
 
 const router = useRouter();
 const profile = useProfileStore();
+const mlkem = useMLKEMStore();
+const rsakem = useRSAKEMStore();
+const encryption = useEncryptionStore();
 
 const onSubmit = async () => {
   const success = await profile.login(username.value, password.value);
   if (success) {
+    await encryption.init();
+    await encryption.tryRegister(password.value);
     router.push("/chat");
   }
 };

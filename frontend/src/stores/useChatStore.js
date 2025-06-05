@@ -2,6 +2,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { useProfileStore } from "@/stores/useProfileStore";
+import { useEncryptionStore } from "./useEncryptionStore";
 import {
   MyGroupAPI,
   MyMessageAPI,
@@ -9,9 +10,11 @@ import {
   UserAPI,
   MyStatusAPI,
 } from "@/api/app";
+import { DEKAPI } from "@/api/dek";
 
 export const useChatStore = defineStore("chat", () => {
   const profile = useProfileStore();
+  const encryption = useEncryptionStore();
 
   const groupList = ref([]);
   const selectedGroupId = ref(null);
@@ -26,31 +29,17 @@ export const useChatStore = defineStore("chat", () => {
   const syncGroupList = async () => {
     try {
       const latestGroups = await MyGroupAPI.getMyGroups();
-
       const newGroupList = [];
 
-      // Step 1: Refresh members for existing groups first
-      for (const group of groupList.value) {
-        const updatedMembers = await MyGroupAPI.getMyGroupMember(group.id);
-        group.members = updatedMembers || [];
-      }
-
-      // Step 2: Add all groups (reuse existing or fetch new)
       for (const group of latestGroups) {
         const existing = groupList.value.find((g) => g.id === group.id);
 
         if (!existing) {
-          // 🟢 Fetch members and messages for new group
-          const [resMessages, resMembers] = await Promise.all([
-            MyMessageAPI.getMyGroupMessages(group.id),
-            MyGroupAPI.getMyGroupMember(group.id),
-          ]);
-
           newGroupList.push({
             id: group.id,
             name: group.name,
-            messages: resMessages?.content?.reverse() || [],
-            members: resMembers || [],
+            messages: [],
+            members: [],
           });
         } else {
           newGroupList.push(existing);
@@ -59,10 +48,32 @@ export const useChatStore = defineStore("chat", () => {
 
       groupList.value = newGroupList;
       groupListUpdated.value = !groupListUpdated.value;
+
+      await syncGroupMember();
     } catch (err) {
       console.error("Group list sync failed:", err);
     }
   };
+
+  async function syncMessagePage(offset) {
+    const promises = groupList.value.map((group) =>
+      MyMessageAPI.getMyGroupMessages(group.id, offset).then(async (data) => {
+        const messageList = Array.isArray(data?.content) ? data.content : [];
+        const plainMessageList = await encryption.decryptMessage(messageList);
+        group.messages = plainMessageList.reverse();
+      })
+    );
+    await Promise.all(promises);
+  }
+
+  async function syncGroupMember() {
+    const promises = groupList.value.map((group) =>
+      MyGroupAPI.getMyGroupMember(group.id).then((members) => {
+        group.members = members || [];
+      })
+    );
+    await Promise.all(promises);
+  }
 
   function hasUnread(group) {
     const member = group.members?.find(
@@ -190,10 +201,12 @@ export const useChatStore = defineStore("chat", () => {
     if (!message.trim() || !selectedId) return;
 
     try {
-      const newMsg = await sendMessage(message, [selectedId]);
+      const newMessages = await sendMessage(message, [selectedId]);
+      if (!Array.isArray(newMessages)) return;
+
       const group = groupList.value.find((g) => g.id === selectedId);
       if (group && Array.isArray(group.messages)) {
-        group.messages.push(...newMsg);
+        group.messages.push(...newMessages);
       }
     } catch (err) {
       console.error("Send message failed:", err);
@@ -201,12 +214,33 @@ export const useChatStore = defineStore("chat", () => {
     }
   };
 
-  const sendMessage = async (message, groupIds) => {
+  const sendMessage = async (plaintext, groupIds) => {
     try {
-      return await MyMessageAPI.postMyMessage(message, groupIds);
+      const memberIds = groupIds.flatMap((id) => {
+        const group = groupList.value.find((g) => g.id === id);
+        return group?.members?.map((m) => m.userId) || [];
+      });
+
+      const { content, encrypted_deks } = await encryption.encryptMessage(
+        plaintext.trim(),
+        memberIds
+      );
+
+      const [messageList] = await Promise.all([
+        MyMessageAPI.postMyMessage(content, groupIds), // returns an array
+        DEKAPI.postDeks(encrypted_deks),
+      ]);
+
+      // Add plaintext to each message for UI display
+      for (const msg of messageList) {
+        msg.content = plaintext;
+      }
+
+      return messageList;
     } catch (err) {
       console.error("Send message failed:", err);
       alert(err.message);
+      return [];
     }
   };
 
@@ -214,8 +248,10 @@ export const useChatStore = defineStore("chat", () => {
     try {
       const data = await MyMessageAPI.getMyNewMessages();
       const messageList = Array.isArray(data?.content) ? data.content : [];
+      const plainMessageList =
+        (await encryption.decryptMessage(messageList)) || [];
 
-      for (const message of messageList) {
+      for (const message of plainMessageList) {
         const groupId = message.groupId;
         const group = groupList.value.find((g) => g.id === groupId);
         if (!group) continue;
@@ -237,18 +273,6 @@ export const useChatStore = defineStore("chat", () => {
     } catch (err) {
       console.error("Fetching new messages failed:", err);
     }
-  };
-
-  const getMessages = async (groups) => {
-    const promises = Object.entries(groups).map(([id, group]) =>
-      MyMessageAPI.getMyGroupMessages(id).then((messages) => {
-        if (!Array.isArray(group.messages)) {
-          group.messages = [];
-        }
-        group.messages.push(...messages.content.reverse());
-      })
-    );
-    await Promise.all(promises);
   };
 
   const updateMessage = async (messageId, newContent) => {
@@ -363,15 +387,6 @@ export const useChatStore = defineStore("chat", () => {
     }
   };
 
-  const getMembers = async (groups) => {
-    const promises = Object.entries(groups).map(([id, group]) =>
-      MyGroupAPI.getMyGroupMember(id).then((members) => {
-        group.members = members;
-      })
-    );
-    await Promise.all(promises);
-  };
-
   return {
     groupList,
     groupListUpdated,
@@ -381,6 +396,7 @@ export const useChatStore = defineStore("chat", () => {
     showOverlay,
 
     syncGroupList,
+    syncMessagePage,
     hasUnread,
     setReadAtIfNeeded,
     setReadAt,
@@ -394,12 +410,10 @@ export const useChatStore = defineStore("chat", () => {
     leaveGroup,
     sendMessageToRoom,
     sendMessage,
-    getMessages,
     getNewMessages,
     updateMessage,
     deleteMessage,
     addMember,
     removeMember,
-    getMembers,
   };
 });

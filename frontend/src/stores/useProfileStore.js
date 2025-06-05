@@ -2,6 +2,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { MyStatusAPI } from "@/api/app";
+import { DEKAPI } from "@/api/dek";
 import { UserAPI, AuthAPI } from "@/api/auth";
 
 export const useProfileStore = defineStore("profile", () => {
@@ -10,7 +11,8 @@ export const useProfileStore = defineStore("profile", () => {
   const isLoggedIn = ref(!!localStorage.getItem("jwt"));
 
   const syncUser = async () => {
-    await MyStatusAPI.syncUser();
+    await Promise.all([MyStatusAPI.syncUser(), DEKAPI.sync()]);
+
     currentUserId.value = localStorage.getItem("currentUserId");
     currentUsername.value = localStorage.getItem("username");
     isLoggedIn.value = !!localStorage.getItem("jwt");

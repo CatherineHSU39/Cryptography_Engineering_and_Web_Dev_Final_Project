@@ -1,11 +1,21 @@
+# Core FastAPI and dependencies
 fastapi
 uvicorn[standard]
+pydantic
+
+# Security and authentication
 python-jose[cryptography]
 passlib[bcrypt]
+
+# Database and HTTP client
 sqlalchemy
 psycopg2-binary
-pydantic
-pypqc
-cryptography
-pycryptodome
 httpx
+
+# Cryptography libraries
+cryptography               # for general crypto functions
+pycryptodome               # for AES-GCM, RSA, and PKCS1_OAEP
+PyNaCl                     # for XChaCha20-Poly1305 AEAD
+
+# Post-quantum cryptography (Kyber ML-KEM)
+kyber-py @ git+https://github.com/GiacomoPope/kyber-py.git

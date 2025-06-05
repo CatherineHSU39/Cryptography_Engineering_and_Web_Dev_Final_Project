@@ -8,9 +8,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import com.nycu.ce.ciphergame.backend.dto.message.MessageQuery;
 import com.nycu.ce.ciphergame.backend.entity.Message;
 import com.nycu.ce.ciphergame.backend.entity.User;
 import com.nycu.ce.ciphergame.backend.entity.id.GroupId;
@@ -39,9 +41,11 @@ public class MyMessageService {
     @Autowired
     private UserService userService;
 
-    public Page<Message> getMyNewMessages(UserId userId, Pageable pageable) {
+    public Page<Message> getMyNewMessages(UserId userId, MessageQuery messageQuery) {
         User user = userService.getUserById(userId);
         LocalDateTime fetchNewAt = user.getFetchNewAt();
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = messageQuery.toPageable(sort);
 
         List<UUID> groupIds = user.getMemberships().stream()
                 .map(m -> m.getId().getGroupId())

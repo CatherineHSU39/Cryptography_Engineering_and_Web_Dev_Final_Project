@@ -1,11 +1,11 @@
 package com.nycu.ce.ciphergame.dek.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +15,19 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DekQuery {
 
-    @Size(max = 100, message = "At most 100 dekIds can be queried at a time")
-    @NotNull(message = "At least one dekId must be provided")
-    List<UUID> dekIds = new ArrayList<>();
+    @Min(value = 1, message = "Limit must be at least 1")
+    @Max(value = 100, message = "Limit must not exceed 100")
+    private int limit = 20;
+
+    @Min(value = 0, message = "Offset must be non-negative")
+    private int offset = 0;
+
+    public Pageable toPageable(Sort sort) {
+        int page = offset / limit;
+        return PageRequest.of(page, limit, sort);
+    }
+
+    public Pageable toPageable() {
+        return toPageable(Sort.unsorted());
+    }
 }

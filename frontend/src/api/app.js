@@ -59,10 +59,15 @@ export const MyMessageAPI = {
     return handleResponse(res);
   },
 
-  getMyGroupMessages: async (groupId) => {
-    const res = await fetch(`${BASE_URL}/me/groups/${groupId}/messages`, {
-      headers: getAuthHeaders(),
-    });
+  getMyGroupMessages: async (groupId, limit = 20, offset = 0) => {
+    const messageQuery = encodeURIComponent(JSON.stringify({ limit, offset }));
+
+    const res = await fetch(
+      `${BASE_URL}/me/groups/${groupId}/messages?messageQuery=${messageQuery}`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
     return handleResponse(res);
   },
 

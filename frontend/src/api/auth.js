@@ -4,6 +4,14 @@ function getHeaders() {
   return { "Content-Type": "application/json" };
 }
 
+function getAuthHeaders() {
+  const token = localStorage.getItem("jwt");
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+}
+
 async function handleResponse(response) {
   const contentType = response.headers.get("content-type");
   const hasBody = contentType && contentType.includes("application/json");
@@ -52,10 +60,7 @@ export const UserAPI = {
     const token = localStorage.getItem("jwt");
     const res = await fetch(`${AUTH_BASE_URL}/users`, {
       method: "PUT",
-      headers: {
-        ...getHeaders(),
-        Authorization: `Bearer ${token}`,
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ username, password }),
     });
     const data = await handleResponse(res);

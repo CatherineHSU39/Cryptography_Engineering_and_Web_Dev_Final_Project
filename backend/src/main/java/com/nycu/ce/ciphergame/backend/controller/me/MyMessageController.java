@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -64,10 +63,9 @@ public class MyMessageController {
             @Valid @ModelAttribute MessageQuery messageQuery
     ) {
         UserId senderId = UserId.fromString(jwt.getSubject());
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         Page<Message> messages = myMessageService.getMyNewMessages(
                 senderId,
-                messageQuery.toPageable(sort)
+                messageQuery
         );
         return ResponseEntity.ok(messageMapper.toDTO(messages));
     }

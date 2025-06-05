@@ -9,7 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stablelib/base64": "^2.0.1",
+    "@stablelib/xchacha20poly1305": "^2.0.1",
     "axios": "^1.9.0",
+    "mlkem": "^2.3.1",
     "pinia": "^3.0.2",
     "vue": "^3.5.13",
     "vue-router": "^4.5.1"

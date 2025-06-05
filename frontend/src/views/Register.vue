@@ -64,18 +64,17 @@
 <script setup>
 import { ref } from 'vue'
 import { useRegister } from '@/logic/useRegister';
+import { useEncryptionStore } from '@/stores/useEncryptionStore';
 
 const username = ref('')
 const password = ref('')
 const confirm = ref('')
 
 const { handleRegister } = useRegister();
+const encryption = useEncryptionStore();
 
-const onSubmit = () => {
-  handleRegister(
-    username.value, 
-    password.value, 
-    confirm.value
-  );
+const onSubmit = async () => {
+  await handleRegister(username.value, password.value, confirm.value);
 };
+
 </script>
