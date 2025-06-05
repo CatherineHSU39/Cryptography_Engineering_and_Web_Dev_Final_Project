@@ -53,6 +53,7 @@ export const useEncryptionStore = defineStore("encryption", () => {
   async function cacheDeks(encrypted_deks) {
     try {
       console.log(`[KMS] Retrieved ${encrypted_deks.length} encrypted DEKs.`);
+      console.log("[KMS] Encrypted DEKs:", encrypted_deks);
 
       const keyInfo = await KMSAPI.decryptDek(
         current_kem_alg.value,
@@ -60,15 +61,22 @@ export const useEncryptionStore = defineStore("encryption", () => {
       );
       console.log("[KMS] Key info from KMSAPI.decryptDek:", keyInfo);
 
-      const deks = keyInfo.encrypted_response;
+      let deks = keyInfo.encrypted_response;
+      console.log("[KMS] Initial DEK payload (possibly encrypted):", deks);
+
       if (current_kem_alg.value !== "NONE") {
         const sharedSecret = await decapKey(keyInfo);
+        console.log("[KMS] Shared secret from decapsulation:", sharedSecret);
+
         deks = await decrypt(sharedSecret, keyInfo.encrypted_response);
-        console.log("[KMS] Shared secret obtained from decapsulation.");
+        console.log("[KMS] Decrypted DEKs payload (JSON string):", deks);
       }
 
-      const dek_dict = parseContent(deks);
+      const dek_dict = await parseContent(deks);
+      console.log("[KMS] Parsed DEK dictionary:", dek_dict);
+
       for (const [id, dek] of Object.entries(dek_dict)) {
+        console.log(`[KMS] Caching DEK → ID: ${id}, DEK: ${dek}`);
         dekMap.value.set(id, dek);
       }
 
@@ -110,31 +118,80 @@ export const useEncryptionStore = defineStore("encryption", () => {
   }
 
   async function decryptMessage(messageList) {
-    console.log(`[KMS] Decrypting ${messageList.length} messages...`);
+    const allMessages = [...messageList, ...messageCache.value];
+    messageCache.value = [];
+
+    console.log(`[KMS] Decrypting ${allMessages.length} messages...`);
+    console.log("[KMS] Messages to decrypt:", allMessages);
 
     const plainMessageList = await Promise.all(
-      messageList.map(async (message) => {
-        const parsed = await parseContent(message.content);
-        const dekId = parsed.dekIds?.[profile.currentUserId];
+      allMessages.map(async (message, index) => {
+        try {
+          console.log(
+            `[KMS] Processing message [${index}] ID: ${message.messageId}`
+          );
+          const parsed = await parseContent(message.content);
+          console.log(
+            `[KMS] Parsed message content for ID ${message.messageId}:`,
+            parsed
+          );
 
-        if (dekId && !dekMap.value.has(dekId)) {
-          console.warn(`[KMS] Missing DEK ${dekId}, skipping decryption`);
+          const dekId = parsed.dekIds?.[profile.currentUserId];
+          console.log(`[KMS] dekId for user ${profile.currentUserId}:`, dekId);
+
+          if (!dekId) {
+            console.warn(
+              `[KMS] No DEK ID found in message for user ${profile.currentUserId}, skipping`
+            );
+            return {
+              ...message,
+              content: "decrypting...",
+            };
+          }
+
+          if (!dekMap.value.has(dekId)) {
+            console.warn(
+              `[KMS] Missing DEK ${dekId}, caching message ID: ${message.id}`
+            );
+
+            const alreadyCached = messageCache.value.some(
+              (m) => m.id === message.id
+            );
+            if (!alreadyCached) {
+              messageCache.value.push(message);
+              console.log(`[KMS] Cached message ID: ${message.id}`);
+            }
+
+            return {
+              ...message,
+              content: "decrypting...",
+            };
+          }
+
+          const key = dekMap.value.get(dekId);
+          console.log(`[KMS] Using DEK for ID ${dekId}:`, key);
+
+          const plaintext = await decrypt(key, parsed);
+          if (!plaintext) {
+            console.error(`[KMS] Failed to decrypt message ID: ${message.id}`);
+            throw new Error("Failed to decrypt message");
+          }
+
+          console.log(`[KMS] Successfully decrypted message ID: ${message.id}`);
           return {
             ...message,
-            content: "decrypting...",
+            content: plaintext,
+          };
+        } catch (err) {
+          console.error(
+            `[KMS] Error decrypting message ID ${message.id}:`,
+            err
+          );
+          return {
+            ...message,
+            content: "decryption error",
           };
         }
-
-        const key = dekMap.value.get(dekId);
-        if (!key) throw new Error(`DEK ${dekId} not found`);
-
-        const plaintext = await decrypt(key, parsed.ciphertext);
-        if (!plaintext) throw new Error("Failed to decrypt message");
-
-        return {
-          ...message,
-          content: plaintext,
-        };
       })
     );
 
@@ -173,6 +230,7 @@ export const useEncryptionStore = defineStore("encryption", () => {
   }
 
   return {
+    dekMap,
     isRegistered,
     current_kem_alg,
     init,

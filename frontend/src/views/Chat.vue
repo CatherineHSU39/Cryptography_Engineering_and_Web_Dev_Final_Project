@@ -34,7 +34,7 @@ onMounted(async () => {
   // 🟢 Start polling new messages (commented out for now)
   pollInterval.getMessages = setInterval(chat.getNewMessages, 2000);
   pollInterval.syncGroups = setInterval(chat.syncGroupList, 10000);
-  pollInterval.syncDeks = setInterval(encryption.getNewDeks, 10000);
+  pollInterval.syncDeks = setInterval(encryption.getNewDeks, 2000);
 
   // One-time DEK sync
   try {
