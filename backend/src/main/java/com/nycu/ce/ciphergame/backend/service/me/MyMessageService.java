@@ -65,6 +65,8 @@ public class MyMessageService {
                 .map(Message::getCreatedAt)
                 .ifPresent(user::setFetchNewAt);
 
+        userService.updateUser(user);
+
         return page;
     }
 
