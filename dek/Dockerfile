@@ -1,6 +1,6 @@
 # backend/Dockerfile
 
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
 
 # Metadata
 LABEL maintainer="a313706026.mg13@nycu.edu.tw"
