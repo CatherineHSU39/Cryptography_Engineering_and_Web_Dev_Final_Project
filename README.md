@@ -82,6 +82,7 @@ Build and launch the production stack:
 ```bash
 make prod
 make init-db                  # Defaults to production mode (no seed data)
+make prod-up
 ```
 
 - Vue app is built via multi-stage Dockerfile
@@ -121,6 +122,31 @@ make clean
 | `make dev-down`                 | Stop dev environment                       |
 | `make prod-down`                | Stop prod environment                      |
 | `make clean`                    | Stop and remove all volumes                |
+
+---
+
+## 🛠️ Troubleshooting
+
+### Windows: `make init-db` fails with `^M` or `bad interpreter` errors
+
+This happens when shell scripts have Windows line endings (CRLF) instead of Unix line endings (LF).
+
+**Quick fix** — convert the affected files in VS Code by clicking `CRLF` in the bottom right status bar and selecting `LF`, then save. Do this for `scripts/init-db.sh` and `.env`.
+
+Alternatively, fix via terminal (MSYS2 or WSL):
+
+```bash
+sed -i 's/\r//' scripts/init-db.sh
+sed -i 's/\r//' .env
+```
+
+**Permanent fix** — add a `.gitattributes` file to the project root to enforce LF line endings on checkout:
+
+```
+*.sh text eol=lf
+*.env text eol=lf
+Makefile text eol=lf
+```
 
 ---
 
